@@ -1,41 +1,20 @@
 
-CREATE DATABASE Tienda;
+CREATE DATABASE IF NOT EXISTS Tienda;
+
+USE Tienda;
 
 --- Usuario Administrador
-CREATE USER 'admin'@'localhost' IDENTIFIED BY '123';
+CREATE USER IF NOT EXISTS 'admin'@'localhost' IDENTIFIED BY '123';
 
-GRANT ALL PRIVILEGES ON Tienda.* TO usr_admin@localhost WITH GRANT OPTION;
+GRANT ALL PRIVILEGES ON Tienda.* TO 'admin'@'localhost' WITH GRANT OPTION;
 
---- Usuario Caja
-CREATE USER 'vendedor'@'localhost' IDENTIFIED BY '123';
-
-GRANT SELECT, INSERT, UPDATE ON Tienda.Clientes TO 'vendedor'@'localhost';
-GRANT SELECT, INSERT, UPDATE ON Tienda.Direcciones_Clientes TO 'vendedor'@'localhost';
-GRANT SELECT, INSERT, UPDATE ON Tienda.Ventas TO 'vendedor'@'localhost';
-GRANT SELECT ON Tienda.Productos_Locales TO 'vendedor'@'localhost';
-
--- Usuario Gestor Proveedores
-
-CREATE USER 'almacen'@'localhost' IDENTIFIED BY '123';
-GRANT SELECT, INSERT, UPDATE ON Tienda.Pedidos TO 'almacen'@'localhost';
-GRANT SELECT, INSERT, UPDATE ON Tienda.Detalles_Pedidos TO 'almacen'@'localhost';
-GRANT SELECT, INSERT, UPDATE ON Tienda.Proveedores TO 'almacen'@'localhost';
-GRANT SELECT, INSERT, UPDATE, DELETE ON Tienda.Productos_Locales TO 'almacen'@'localhost';
-
---- Usuario Gerente
-CREATE USER 'gerente'@'localhost' IDENTIFIED BY '123';
-GRANT SELECT, INSERT, UPDATE ON Tienda.Locales TO 'gerente'@'localhost';
-GRANT SELECT, INSERT, UPDATE ON Tienda.Pedidos TO 'gerente'@'localhost';
-GRANT SELECT, INSERT, UPDATE ON Tienda.Detalles_Pedidos TO 'gerente'@'localhost';
-GRANT SELECT, INSERT, UPDATE ON Tienda.Productos_Locales TO 'gerente'@'localhost';
-GRANT SELECT, INSERT, UPDATE ON Tienda.Empleados TO 'gerente'@'localhost';
 
 
 --- Creación de tablas
 
 CREATE TABLE Categorias (
  id INT NOT NULL AUTO_INCREMENT,
- nombre_categoria VARCHAR(50)
+ nombre_categoria VARCHAR(50),
  PRIMARY KEY (id)
 );
 
@@ -91,7 +70,7 @@ CREATE TABLE Ventas (
  PRIMARY KEY (id),
  FOREIGN KEY (cliente_id) REFERENCES Clientes (id),
  FOREIGN KEY (direccion_id) REFERENCES Direcciones_Clientes (id),
- FOREIGN KEY (tipo_pagos_id) REFERENCES Tipos_Pagos (id)
+ FOREIGN KEY (tipo_pago_id) REFERENCES Tipos_Pagos (id)
 );
 
 CREATE TABLE Detalles_Ventas(
@@ -161,4 +140,33 @@ CREATE TABLE Empleados (
  FOREIGN KEY (local_id) REFERENCES Locales (id)
 );
 
+
+
+---- Usuarios
+
+
+--- Usuario Caja
+CREATE USER IF NOT EXISTS 'vendedor'@'localhost' IDENTIFIED BY '123';
+
+GRANT SELECT, INSERT, UPDATE ON Tienda.Clientes TO 'vendedor'@'localhost';
+GRANT SELECT, INSERT, UPDATE ON Tienda.Direcciones_Clientes TO 'vendedor'@'localhost';
+GRANT SELECT, INSERT, UPDATE ON Tienda.Ventas TO 'vendedor'@'localhost';
+GRANT SELECT ON Tienda.Productos_Locales TO 'vendedor'@'localhost';
+
+-- Usuario Gestor Proveedores
+
+CREATE USER IF NOT EXISTS 'almacen'@'localhost' IDENTIFIED BY '123';
+
+GRANT SELECT, INSERT, UPDATE ON Tienda.Pedidos TO 'almacen'@'localhost';
+GRANT SELECT, INSERT, UPDATE ON Tienda.Detalles_Pedidos TO 'almacen'@'localhost';
+GRANT SELECT, INSERT, UPDATE ON Tienda.Proveedores TO 'almacen'@'localhost';
+GRANT SELECT, INSERT, UPDATE, DELETE ON Tienda.Productos_Locales TO 'almacen'@'localhost';
+
+--- Usuario Gerente
+CREATE USER IF NOT EXISTS 'gerente'@'localhost' IDENTIFIED BY '123';
+GRANT SELECT, INSERT, UPDATE ON Tienda.Locales TO 'gerente'@'localhost';
+GRANT SELECT, INSERT, UPDATE ON Tienda.Pedidos TO 'gerente'@'localhost';
+GRANT SELECT, INSERT, UPDATE ON Tienda.Detalles_Pedidos TO 'gerente'@'localhost';
+GRANT SELECT, INSERT, UPDATE ON Tienda.Productos_Locales TO 'gerente'@'localhost';
+GRANT SELECT, INSERT, UPDATE ON Tienda.Empleados TO 'gerente'@'localhost';
 
