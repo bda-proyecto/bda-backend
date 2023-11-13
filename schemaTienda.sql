@@ -91,7 +91,8 @@ CREATE TABLE Proveedores (
 );
 
 CREATE TABLE Locales (
- id INT NOT NULL AUTO_INCREMENT,
+ id INT NOT NULL AUTO_INCREMENT,i
+ nombre VARCHAR(50),
  direccion VARCHAR(100),
  PRIMARY KEY (id)
 );
@@ -112,6 +113,7 @@ CREATE TABLE Detalles_Pedidos (
  id INT NOT NULL AUTO_INCREMENT,
  pedido_id INT NOT NULL,
  producto_id INT NOT NULL,
+ cantidad INT NOT NULL,
  PRIMARY KEY (id),
  FOREIGN KEY (pedido_id) REFERENCES Pedidos (id),
  FOREIGN KEY (producto_id) REFERENCES Productos (id)
