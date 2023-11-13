@@ -23,7 +23,6 @@ mysql = MySQL(app)
 
 # Ruta de Autenticación
 
-# Rutas de autenticación
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
@@ -82,6 +81,19 @@ def login():
             return render_template('login.html', error=error)
 
     return render_template('login.html')
+
+##########
+
+@app.route('/productos')
+def productos():
+    cur = mysql.connection.cursor()
+    result = cur.execute('SELECT * FROM Productos')
+    productos = result.fetchall()
+
+    return render_template('productos.html', productos = productos)
+
+
+@
 
 
 
