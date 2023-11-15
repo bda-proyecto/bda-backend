@@ -10,6 +10,10 @@ BEGIN
 	VALUES (nombreCategoria);
 END$$
 
+DELIMITER ;
+
+DELIMITER $$
+
 CREATE PROCEDURE updateCategoria(
 	IN id INT,
 	IN nombreCategoria VARCHAR(50)
@@ -20,6 +24,10 @@ BEGIN
 	WHERE id = id;
 END$$
 
+DELIMITER ;
+
+DELIMITER $$
+
 CREATE PROCEDURE deleteCategoria(
 	IN id INT	
 )
@@ -27,6 +35,10 @@ BEGIN
 	DELETE FROM Categorias
 	WHERE id = id;
 END$$
+
+DELIMITER ;
+
+DELIMITER $$
 
 CREATE PROCEDURE getCategoriaById(
 	IN id INT
@@ -37,6 +49,10 @@ BEGIN
 	WHERE id = id;
 END$$
 
+DELIMITER ;
+
+DELIMITER $$
+
 CREATE PROCEDURE getAllCategorias(
 )
 BEGIN
@@ -44,6 +60,9 @@ BEGIN
 	FROM Categorias;
 END$$
 
+DELIMITER ;
+
+DELIMITER $$
 
 ---  PRODUCTOS
 
@@ -58,6 +77,10 @@ BEGIN
 	INSERT INTO Productos (nombre_producto, descripcion, precio_compra, precio_venta, categoria_id)
 	VALUES (nombreProducto, descripcion, precioCompra, precioVenta, categoriaId);
 END$$
+
+DELIMITER ;
+
+DELIMITER $$
 
 CREATE PROCEDURE updateProducto(
     IN id INT,
@@ -77,6 +100,9 @@ BEGIN
     WHERE id = id;
 END$$
 
+DELIMITER ;
+
+DELIMITER $$
 
 CREATE PROCEDURE deleteProducto(
 	IN id INT
@@ -86,6 +112,10 @@ BEGIN
        WHERE id = id;
 END$$
 
+DELIMITER ;
+
+DELIMITER $$
+
 CREATE PROCEDURE getProductoById(IN id INT)
 BEGIN
 	SELECT *
@@ -93,11 +123,19 @@ BEGIN
 	WHERE id = id;
 END$$
 
+DELIMITER ;
+
+DELIMITER $$
+
 CREATE PROCEDURE getAllProductos()
 BEGIN
 	SELECT *
 	FROM Productos;
 END$$
+
+DELIMITER ;
+
+DELIMITER $$
 
 --- Usuarios
 
@@ -108,8 +146,12 @@ CREATE PROCEDURE insertUsuario (
 )
 BEGIN
 	INSERT INTO Usuarios (email, password, rol)
-	VALUES (email, password, rol)
+	VALUES (email, password, rol);
 END$$
+
+DELIMITER ;
+
+DELIMITER $$
 
 CREATE PROCEDURE updateUsuario (
 	IN id INT,
@@ -125,6 +167,10 @@ BEGIN
 	WHERE id = id;
 END$$
 
+DELIMITER ;
+
+DELIMITER $$
+
 CREATE PROCEDURE deleteUsuario(
 	IN id INT
 )
@@ -132,6 +178,10 @@ BEGIN
 	DELETE FROM Usuarios
 	WHERE id = id;
 END$$
+
+DELIMITER ;
+
+DELIMITER $$
 
 CREATE PROCEDURE getUsuarioById(
 	IN id INT
@@ -142,11 +192,19 @@ BEGIN
 	WHERE id = id;
 END$$
 
+DELIMITER ;
+
+DELIMITER $$
+
 CREATE PROCEDURE getAllUsuarios()
 BEGIN
 	SELECT *
 	FROM Usuarios;
 END$$
+
+DELIMITER ;
+
+DELIMITER $$
 
 --- Clientes
 
@@ -160,6 +218,10 @@ BEGIN
 	INSERT INTO Clientes (nombre, apellido_paterno, apellido_materno, telefono)
 	VALUES (nombre, apellidoPaterno, apellidoMaterno, telefono);
 END$$
+
+DELIMITER ;
+
+DELIMITER $$
 
 CREATE PROCEDURE updateCliente(
     IN id INT,
@@ -177,6 +239,10 @@ BEGIN
     WHERE id = id;
 END$$
 
+DELIMITER ;
+
+DELIMITER $$
+
 CREATE PROCEDURE deleteCliente(
     IN id INT
 )
@@ -184,6 +250,10 @@ BEGIN
     DELETE FROM Clientes
     WHERE id = id;
 END$$
+
+DELIMITER ;
+
+DELIMITER $$
 
 CREATE PROCEDURE getClienteById(
     IN id INT
@@ -194,12 +264,19 @@ BEGIN
     WHERE id = id;
 END$$
 
+DELIMITER ;
+
+DELIMITER $$
+
 CREATE PROCEDURE getAllClientes()
 BEGIN
     SELECT *
     FROM Clientes;
 END$$
 
+DELIMITER ;
+
+DELIMITER $$
 
 -- Proveedores
 CREATE PROCEDURE insertProveedor(
@@ -211,6 +288,10 @@ BEGIN
     INSERT INTO Proveedores (nombre_proveedor, telefono, direccion)
     VALUES (nombreProveedor, telefono, direccion);
 END$$
+
+DELIMITER ;
+
+DELIMITER $$
 
 CREATE PROCEDURE updateProveedor(
     IN id INT,
@@ -226,6 +307,10 @@ BEGIN
     WHERE id = id;
 END$$
 
+DELIMITER ;
+
+DELIMITER $$
+
 CREATE PROCEDURE deleteProveedor(
     IN id INT
 )
@@ -233,6 +318,10 @@ BEGIN
     DELETE FROM Proveedores
     WHERE id = id;
 END$$
+
+DELIMITER ;
+
+DELIMITER $$
 
 CREATE PROCEDURE getProveedorById(
     IN id INT
@@ -243,11 +332,19 @@ BEGIN
     WHERE id = id;
 END$$
 
+DELIMITER ;
+
+DELIMITER $$
+
 CREATE PROCEDURE getAllProveedores()
 BEGIN
     SELECT *
     FROM Proveedores;
 END$$
+
+DELIMITER ;
+
+DELIMITER $$
 
 --- Inventarios
 
@@ -260,7 +357,9 @@ BEGIN
     INSERT INTO Inventarios (producto_id, cantidad, fecha_ingreso)
     VALUES (productoId, cantidad, fechaIngreso);
 END$$
+DELIMITER ;
 
+DELIMITER $$
 CREATE PROCEDURE updateInventario(
     IN id INT,
     IN productoId INT,
@@ -275,6 +374,10 @@ BEGIN
     WHERE id = id;
 END$$
 
+DELIMITER ;
+
+DELIMITER $$
+
 CREATE PROCEDURE deleteInventario(
     IN id INT
 )
@@ -282,6 +385,10 @@ BEGIN
     DELETE FROM Inventarios
     WHERE id = id;
 END$$
+
+DELIMITER ;
+
+DELIMITER $$
 
 CREATE PROCEDURE getInventarioById(
     IN id INT
@@ -292,12 +399,19 @@ BEGIN
     WHERE id = id;
 END$$
 
+DELIMITER ;
+
+DELIMITER $$
+
 CREATE PROCEDURE getAllInventarios()
 BEGIN
     SELECT *
     FROM Inventarios;
 END$$
 
+DELIMITER ;
+
+DELIMITER $$
 
 --- Ventas
 
@@ -312,6 +426,10 @@ BEGIN
     INSERT INTO Ventas (producto_id, cliente_id, cantidad, fecha_venta, total_venta)
     VALUES (productoId, clienteId, cantidad, fechaVenta, totalVenta);
 END$$
+
+DELIMITER ;
+
+DELIMITER $$
 
 CREATE PROCEDURE updateVenta(
     IN id INT,
@@ -331,6 +449,10 @@ BEGIN
     WHERE id = id;
 END$$
 
+DELIMITER ;
+
+DELIMITER $$
+
 CREATE PROCEDURE deleteVenta(
     IN id INT
 )
@@ -338,6 +460,10 @@ BEGIN
     DELETE FROM Ventas
     WHERE id = id;
 END$$
+
+DELIMITER ;
+
+DELIMITER $$
 
 CREATE PROCEDURE getVentaById(
     IN id INT
@@ -348,12 +474,136 @@ BEGIN
     WHERE id = id;
 END$$
 
+DELIMITER ;
+
+DELIMITER $$
+
 CREATE PROCEDURE getAllVentas()
 BEGIN
     SELECT *
     FROM Ventas;
 END$$
+DELIMITER ;
 
+DELIMITER $$
+
+-- Compras
+CREATE PROCEDURE insertCompra(
+    IN proveedorId INT,
+    IN fechaCompra DATE,
+    IN totalCompra DECIMAL(10,2)
+)
+BEGIN
+    INSERT INTO Compras (proveedor_id, fecha_compra, total_compra)
+    VALUES (proveedorId, fechaCompra, totalCompra);
+END$$
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE PROCEDURE updateCompra(
+    IN id INT,
+    IN proveedorId INT,
+    IN fechaCompra DATE,
+    IN totalCompra DECIMAL(10,2)
+)
+BEGIN
+    UPDATE Compras
+    SET proveedor_id = proveedorId,
+        fecha_compra = fechaCompra,
+        total_compra = totalCompra
+    WHERE id = id;
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE PROCEDURE deleteCompra(
+    IN id INT
+)
+BEGIN
+    DELETE FROM Compras
+    WHERE id = id;
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE PROCEDURE getCompraById(
+    IN id INT
+)
+BEGIN
+    SELECT *
+    FROM Compras
+    WHERE id = id;
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE PROCEDURE getAllCompras()
+BEGIN
+    SELECT *
+    FROM Compras;
+END$$
+DELIMITER ;
+
+DELIMITER $$
+-- Detalles de Compras
+CREATE PROCEDURE insertDetalleCompra(
+    IN compraId INT,
+    IN productoId INT,
+    IN cantidad INT
+)
+BEGIN
+    INSERT INTO Detalles_Compras (compra_id, producto_id, cantidad)
+    VALUES (compraId, productoId, cantidad);
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE PROCEDURE updateDetalleCompra(
+    IN id INT,
+    IN compraId INT,
+    IN productoId INT,
+    IN cantidad INT
+)
+BEGIN
+    UPDATE Detalles_Compras
+    SET compra_id = compraId,
+        producto_id = productoId,
+        cantidad = cantidad
+    WHERE id = id;
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE PROCEDURE deleteDetalleCompra(
+    IN id INT
+)
+BEGIN
+    DELETE FROM Detalles_Compras
+    WHERE id = id;
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE PROCEDURE getDetalleCompraById(
+    IN id INT
+)
+BEGIN
+    SELECT *
+    FROM Detalles_Compras
+    WHERE id = id;
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE PROCEDURE getAllDetallesCompras()
+BEGIN
+    SELECT *
+    FROM Detalles_Compras;
+END$$
+DELIMITER ;
+
+DELIMITER $$
 
 --- Reportes Financieros
 
@@ -365,7 +615,9 @@ BEGIN
     JOIN ventas ON clientes.id = ventas.cliente_id
     GROUP BY clientes.id;
 END$$
+DELIMITER ;
 
+DELIMITER $$
 -- Obtener el total de ventas por categoría de productos
 CREATE PROCEDURE getVentasTotalesPorCategoria()
 BEGIN
@@ -375,7 +627,9 @@ BEGIN
     JOIN ventas ON productos.id = ventas.producto_id
     GROUP BY categorias.id;
 END$$
+DELIMITER ;
 
+DELIMITER $$
 -- Obtener el inventario actual de cada producto
 CREATE PROCEDURE getInventarioActual()
 BEGIN
@@ -383,7 +637,9 @@ BEGIN
     FROM productos
     JOIN inventarios ON productos.id = inventarios.producto_id;
 END$$
+DELIMITER ;
 
+DELIMITER $$
 -- Obtener el total de compras por proveedor
 CREATE PROCEDURE getComprasTotalesPorProveedor(
     IN proveedorId INT,
@@ -394,7 +650,9 @@ BEGIN
     FROM Compras
     WHERE proveedor_id = proveedorId;
 END$$
+DELIMITER ;
 
+DELIMITER $$
 -- Obtener el total de ventas por producto
 CREATE PROCEDURE getVentasTotalesPorProducto()
 BEGIN
@@ -403,7 +661,9 @@ BEGIN
     JOIN ventas ON productos.id = ventas.producto_id
     GROUP BY productos.id;
 END$$
+DELIMITER ;
 
+DELIMITER $$
 -- Obtener el balance general (total de ventas - total de compras)
 CREATE PROCEDURE getBalanceGeneral(
     OUT balance DECIMAL(10,2)
@@ -417,7 +677,9 @@ BEGIN
 
     SET balance = totalVentas - totalCompras;
 END$$
+DELIMITER ;
 
+DELIMITER $$
 -- Obtener la lista de productos con bajo inventario (por ejemplo, menos de 10 unidades)
 CREATE PROCEDURE getProductosBajoInventario(
     IN cantidadLimite INT,
@@ -436,7 +698,9 @@ BEGIN
     END IF;
 END$$
 
+DELIMITER ;
 
+DELIMITER $$
 -- Aplicar un descuento a una venta
 CREATE PROCEDURE aplicarDescuentoVenta(
     IN ventaId INT,
@@ -452,7 +716,9 @@ BEGIN
 
     UPDATE ventas SET total_venta = totalVentaConDescuento WHERE id = ventaId;
 END$$
+DELIMITER ;
 
+DELIMITER $$
 -- Obtener el total de descuentos aplicados en un rango de fechas
 CREATE PROCEDURE getTotalDescuentosPorFecha(
     IN fechaInicio DATE,
@@ -464,6 +730,4 @@ BEGIN
     FROM ventas
     WHERE fecha_venta BETWEEN fechaInicio AND fechaFin;
 END$$
-
-
-
+DELIMITER ;
