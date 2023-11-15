@@ -151,8 +151,29 @@ CREATE TABLE TransaccionesFinancieras (
     monto DECIMAL(10,2) NOT NULL,
     fecha_transaccion DATE NOT NULL,
     referencia VARCHAR(100),
-    PRIMARY KEY (id)
+    usuario_id INT, -- Nueva columna para asociar la transacción con un usuario
+    PRIMARY KEY (id),
+    FOREIGN KEY (usuario_id) REFERENCES Usuarios (id)
 );
+
+CREATE TABLE Compras (
+    id INT NOT NULL AUTO_INCREMENT,
+    fecha_compra DATE NOT NULL,
+    proveedor_id INT NOT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (proveedor_id) REFERENCES Proveedores (id)
+);
+
+CREATE TABLE Detalles_Compras (
+    id INT NOT NULL AUTO_INCREMENT,
+    compra_id INT NOT NULL,
+    producto_id INT NOT NULL,
+    cantidad INT NOT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (compra_id) REFERENCES Compras (id),
+    FOREIGN KEY (producto_id) REFERENCES Productos (id)
+);
+
 
 -- Tabla para registrar detalles de las transacciones
 CREATE TABLE DetallesTransacciones (
