@@ -62,53 +62,39 @@ def registro():
 
         try:
             # Verificar si el usuario ya existe
-            cursor = mysql.connection.cursor()
-            cursor.callproc('getUsuarioByEmail', (email,))
-            usuario_existente = cursor.fetchone()
-            cursor.nextset()
-            cursor.close()
-            
-            if usuario_existente:
+            if usuario_existe(email):
                 flash('Ya existe un usuario con este correo electrónico', 'danger')
                 return redirect(url_for('registro'))
-                        
-            cursor = mysql.connection.cursor()
+
             # Crear nuevo usuario
-            cursor.callproc('insertUsuario', (email, password, rol))
-            mysql.connection.commit()
-            cursor.nextset()
-            cursor.close()
-        
-            cursor = mysql.connection.cursor()
+            crear_usuario(email, password, rol)
+
             # Obtener el ID del usuario recién creado
-            cursor.callproc('getUsuarioByEmail', (email,))
-            usuario = cursor.fetchone()
-            cursor.nextset()
-            cursor.close()
-            if usuario:
-                cursor = mysql.connection.cursor()
+            usuario_id = obtener_id_usuario(email)
+
+            if usuario_id:
                 # Crear nuevo cliente asociado al usuario
-                cursor.callproc('insertCliente', (nombre, apellido_paterno, apellido_materno, telefono))
+                cursor = mysql.connection.cursor()
+                cursor.callproc('insertCliente', (nombre, apellido_paterno, apellido_materno, telefono, usuario_id))
                 mysql.connection.commit()
                 cursor.nextset()
                 cursor.close()
-                
+
+                # Obtener el último ID insertado en Clientes
                 cursor = mysql.connection.cursor()
-                # Llamada al procedimiento almacenado para obtener el último ID insertado en Clientes
                 cursor.callproc('getLastInsertedClienteId')
                 cliente_id = cursor.fetchone()[0]
                 cursor.nextset()
                 cursor.close()
 
-                cursor = mysql.connection.cursor()
                 # Actualizar directamente el cliente_id en la tabla de usuarios
-                cursor.execute('UPDATE Clientes SET id = %s WHERE id = %s', (cliente_id, usuario[0]))
+                cursor = mysql.connection.cursor()
+                cursor.execute('UPDATE Clientes SET id = %s WHERE id = %s', (cliente_id, usuario_id))
                 mysql.connection.commit()
                 cursor.close()
 
                 flash('Registro exitoso. Inicia sesión para continuar.', 'success')
                 return redirect(url_for('login'))
-
         except Exception as e:
             # Manejar cualquier error
             flash('Ocurrió un error durante el registro.', 'danger')
@@ -212,38 +198,80 @@ def crear_empleado():
         email = request.form['email']
         password = request.form['password']
         
-        # Crear un nuevo usuario
-        # Verificar si el usuario ya existe
-        cursor = mysql.connection.cursor()
-        cursor.callproc('getUsuarioByEmail', (email,))
-        usuario_existente = cursor.fetchone()
-        cursor.nextset()
-        cursor.close()
+        try:
+            # Verificar si el usuario ya existe
+            if usuario_existe(email):
+                flash('Ya existe un usuario con este correo electrónico', 'danger')
+                return redirect(url_for('crear_empleado'))
 
-        cursor = mysql.connection.cursor()
-        # Crear nuevo usuario
-        cursor.callproc('insertUsuario', (email, password, rol))
-        mysql.connection.commit()
-        cursor.nextset()
-        cursor.close()
+            # Crear nuevo usuario
+            crear_usuario(email, password, rol='empleado')
 
-        cursor = mysql.connection.cursor()
-        # Obtener el ID del usuario recién creado
-        cursor.callproc('getUsuarioByEmail', (email,))
-        usuario = cursor.fetchone()
-        cursor.nextset()
-        cursor.close()
+            # Obtener el ID del usuario recién creado
+            usuario_id = obtener_id_usuario(email)
+
+            if usuario_id:
+                # Crear nuevo cliente asociado al usuario
+                cursor = mysql.connection.cursor()
+                cursor.callproc('insertCliente', (nombre, apellido_paterno, apellido_materno, salario, puesto))
+                mysql.connection.commit()
+                cursor.nextset()
+                cursor.close()
+
+                # Obtener el último ID insertado en Clientes
+                cursor = mysql.connection.cursor()
+                cursor.callproc('getLastInsertedClienteId')
+                cliente_id = cursor.fetchone()[0]
+                cursor.nextset()
+                cursor.close()
+
+                # Actualizar directamente el cliente_id en la tabla de usuarios
+                cursor = mysql.connection.cursor()
+                cursor.execute('UPDATE Empleados SET id = %s WHERE id = %s', (cliente_id, usuario_id))
+                mysql.connection.commit()
+                cursor.close()
+
+                flash('Empleado creado exitosamente', 'success')
+                return redirect(url_for('crear_empleado'))
+        except Exception as e:
+            # Manejar cualquier error
+            flash('Ocurrió un error al crear el empleado.', 'danger')
+            print(f"Error: {e}")
         
-
-        # Validar los datos del formulario (puedes agregar más validaciones según sea necesario)
-        createEmpleado(nombre, apellido_paterno, apellido_materno, salario, puesto, local_id)
-
         flash('Empleado creado exitosamente', 'success')
         return redirect(url_for('crear_empleado'))
     
 
 ####
-# Métodos
+# Métodos Auxiliares
+
+
+# Función para verificar si un usuario ya existe por correo electrónico
+def usuario_existe(email):
+    cursor = mysql.connection.cursor()
+    cursor.callproc('getUsuarioByEmail', (email,))
+    usuario_existente = cursor.fetchone()
+    cursor.nextset()
+    cursor.close()
+    return usuario_existente
+
+# Función para crear un nuevo usuario
+def crear_usuario(email, password, rol='cliente'):
+    cursor = mysql.connection.cursor()
+    cursor.callproc('insertUsuario', (email, password, rol))
+    mysql.connection.commit()
+    cursor.nextset()
+    cursor.close()
+
+# Función para obtener el ID de un usuario por correo electrónico
+def obtener_id_usuario(email):
+    cursor = mysql.connection.cursor()
+    cursor.callproc('getUsuarioByEmail', (email,))
+    usuario = cursor.fetchone()
+    cursor.nextset()
+    cursor.close()
+    return usuario[0] if usuario else None
+
 
 # Obtener Empleados
 def getEmpleados(id):
