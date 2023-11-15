@@ -144,31 +144,23 @@ CREATE TABLE Empleados (
 
 
 
----- Usuarios
+-- Tabla principal para registrar transacciones financieras
+CREATE TABLE TransaccionesFinancieras (
+    id INT NOT NULL AUTO_INCREMENT,
+    tipo_transaccion VARCHAR(50) NOT NULL, -- Puede ser 'Venta', 'Compra', 'Pago', 'Reembolso', etc.
+    monto DECIMAL(10,2) NOT NULL,
+    fecha_transaccion DATE NOT NULL,
+    referencia VARCHAR(100),
+    PRIMARY KEY (id)
+);
 
-
---- Usuario Caja
-CREATE USER IF NOT EXISTS 'vendedor'@'localhost' IDENTIFIED BY '123';
-
-GRANT SELECT, INSERT, UPDATE ON Tienda.Clientes TO 'vendedor'@'localhost';
-GRANT SELECT, INSERT, UPDATE ON Tienda.Direcciones_Clientes TO 'vendedor'@'localhost';
-GRANT SELECT, INSERT, UPDATE ON Tienda.Ventas TO 'vendedor'@'localhost';
-GRANT SELECT ON Tienda.Productos_Locales TO 'vendedor'@'localhost';
-
--- Usuario Gestor Proveedores
-
-CREATE USER IF NOT EXISTS 'almacen'@'localhost' IDENTIFIED BY '123';
-
-GRANT SELECT, INSERT, UPDATE ON Tienda.Pedidos TO 'almacen'@'localhost';
-GRANT SELECT, INSERT, UPDATE ON Tienda.Detalles_Pedidos TO 'almacen'@'localhost';
-GRANT SELECT, INSERT, UPDATE ON Tienda.Proveedores TO 'almacen'@'localhost';
-GRANT SELECT, INSERT, UPDATE, DELETE ON Tienda.Productos_Locales TO 'almacen'@'localhost';
-
---- Usuario Gerente
-CREATE USER IF NOT EXISTS 'gerente'@'localhost' IDENTIFIED BY '123';
-GRANT SELECT, INSERT, UPDATE ON Tienda.Locales TO 'gerente'@'localhost';
-GRANT SELECT, INSERT, UPDATE ON Tienda.Pedidos TO 'gerente'@'localhost';
-GRANT SELECT, INSERT, UPDATE ON Tienda.Detalles_Pedidos TO 'gerente'@'localhost';
-GRANT SELECT, INSERT, UPDATE ON Tienda.Productos_Locales TO 'gerente'@'localhost';
-GRANT SELECT, INSERT, UPDATE ON Tienda.Empleados TO 'gerente'@'localhost';
+-- Tabla para registrar detalles de las transacciones
+CREATE TABLE DetallesTransacciones (
+    id INT NOT NULL AUTO_INCREMENT,
+    transaccion_financiera_id INT NOT NULL,
+    venta_id INT,
+    PRIMARY KEY (id),
+    FOREIGN KEY (transaccion_financiera_id) REFERENCES TransaccionesFinancieras (id),
+    FOREIGN KEY (venta_id) REFERENCES Ventas (id)
+);
 
