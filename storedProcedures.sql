@@ -602,8 +602,29 @@ BEGIN
     FROM Detalles_Compras;
 END$$
 DELIMITER ;
+DELIMITER $$
+
+--- Empleados
+DELIMITER $$
+CREATE PROCEDURE getEmpleadoById(
+	IN Id INT)
+BEGIN
+	SELECT * FROM Empleados WHERE id = Id;
+END$$
+
+DELIMITER ;
 
 DELIMITER $$
+CREATE PROCEDURE getEmpleadoByLocalId(
+	IN Id INT)
+BEGIN
+	SELECT * FROM Empleados WHERE local_id = Id;
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE PROCEDURE 
+
 
 --- Reportes Financieros
 

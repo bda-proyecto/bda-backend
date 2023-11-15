@@ -47,7 +47,7 @@ def registro():
     if request.method == 'POST':
         # Obtener datos del formulario
         email = request.form['email']
-        password = sha256_crypt.encrypt(request.form['password'])
+        password = request.form['password']
         rol = 'cliente'  # Por defecto, los registros son de tipo 'cliente'
 
         # Validar campos del cliente
@@ -132,11 +132,17 @@ def login():
         result = cursor.callproc('getUsuarioByEmail', (email,))
         data = cursor.fetchall()
         cursor.close()
-
-        if data and sha256_crypt.verify(password_candidate, data[0][2]):
+        cursor = mysql.connection.cursor()
+        result = cursor.callproc('getEmpleadoById', (data[0][0],))
+        resultado = cursor.fetchall()
+        cursor.close()
+        print(data)
+        print(resultado)
+        if data and password_candidate == data[0][2]:
             session['logged_in'] = True
-            session['cliente_id'] = data[0][0]
+            session['user_id'] = data[0][0]
             session['user_role'] = data[0][3]
+            session['local_id'] = resultado[0][6]
             flash('¡Inicio de sesión exitoso!', 'success')
             return redirect(url_for('dashboard'))
         else:
@@ -146,15 +152,27 @@ def login():
 
 # Ruta para el panel de control (requiere inicio de sesión y rol de cliente o empleado)
 @app.route('/dashboard')
-@is_logged_in_with_role(['cliente', 'empleado'])
+@is_logged_in_with_role(['cliente', 'admin', 'empleado_ventas', 'empleado_almacen'])
 def dashboard():
     # Obtener el rol del usuario desde la sesión o la base de datos
     user_role = session.get('user_role', None)
 
     # Seleccionar la plantilla según el rol del usuario
-    template_name = 'dashboard_cliente.html' if user_role == 'cliente' else 'dashboard_empleado.html'
+    if user_role == 'cliente':
+        template_name = 'dashboard_cliente.html'
+    elif user_role == 'admin':
+        template_name = 'dashboard_admin.html'
+    elif user_role == 'empleado_ventas':
+        template_name = 'dashboard_empleado_ventas.html'
+    elif user_role == 'empleado_almacen':
+        template_name = 'dashboard_empleado_almacen.html'
+    else:
+        # Manejar el caso de un rol desconocido
+        flash('Rol desconocido', 'danger')
+        return redirect(url_for('login'))
 
     return render_template(template_name)
+
 
 
 # Ruta para cerrar sesión
@@ -165,6 +183,86 @@ def logout():
     flash('Has cerrado sesión', 'success')
     return redirect(url_for('login'))
 
+#######################################################
+#           EMPLEADOS
+#######################################################
+
+# Ruta para obtener todos los empleados
+@app.route('/empleados')
+@is_logged_in_with_role(['admin'])
+def obtener_empleados():
+    admin_id = session.get('user_id', None)
+    local_id = session.get('local_id', None)
+    empleados = getEmpleados(local_id)
+    return render_template('empleados_local.html', empleados=empleados)
+
+@app.route('/create_empleado', methods=['GET','POST'])
+@is_logged_in_with_role(['admin'])
+def crear_empleado():
+    local_id = session.get('local_id', None)
+    if request.method == 'GET':
+        return render_template('crear_empleado.html')
+    if request.method == 'POST':
+        # Obtener datos del formulario
+        nombre = request.form['nombre']
+        apellido_paterno = request.form['apellido_paterno']
+        apellido_materno = request.form['apellido_materno']
+        salario = request.form['salario']
+        puesto = request.form['puesto']
+        email = request.form['email']
+        password = request.form['password']
+        
+        # Crear un nuevo usuario
+        # Verificar si el usuario ya existe
+        cursor = mysql.connection.cursor()
+        cursor.callproc('getUsuarioByEmail', (email,))
+        usuario_existente = cursor.fetchone()
+        cursor.nextset()
+        cursor.close()
+
+        cursor = mysql.connection.cursor()
+        # Crear nuevo usuario
+        cursor.callproc('insertUsuario', (email, password, rol))
+        mysql.connection.commit()
+        cursor.nextset()
+        cursor.close()
+
+        cursor = mysql.connection.cursor()
+        # Obtener el ID del usuario recién creado
+        cursor.callproc('getUsuarioByEmail', (email,))
+        usuario = cursor.fetchone()
+        cursor.nextset()
+        cursor.close()
+        
+
+        # Validar los datos del formulario (puedes agregar más validaciones según sea necesario)
+        createEmpleado(nombre, apellido_paterno, apellido_materno, salario, puesto, local_id)
+
+        flash('Empleado creado exitosamente', 'success')
+        return redirect(url_for('crear_empleado'))
+    
+
+####
+# Métodos
+
+# Obtener Empleados
+def getEmpleados(id):
+    cursor = mysql.connection.cursor()
+    resultado = cursor.callproc('getEmpleadosByLocalId',(id,))
+    empleados = cursor.fetchall()
+    cursor.close()
+    return empleados
+
+def createEmpleado(nombre, apellido_paterno, apellido_materno, salario, puesto, localid):
+    cursor = mysql.connection.cursor()
+    resultado = cursor.callproc('insertEmpleadoInLocal',(nombre, apellido_paterno, apellido_materno, salario, puesto, localid,))
+    cursor.commit()
+    cursor.close()
+
+# # # # 
+
 if __name__ == '__main__':
     app.run(debug=True)
+
+
 
