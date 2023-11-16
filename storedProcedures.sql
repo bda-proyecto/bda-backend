@@ -607,15 +607,16 @@ DELIMITER $$
 --- Empleados
 DELIMITER $$
 CREATE PROCEDURE getEmpleadoById(
-	IN Id INT)
+	IN IdEmpleado INT)
 BEGIN
-	SELECT * FROM Empleados WHERE id = Id;
+	SELECT * FROM Empleados 
+	WHERE id = IdEmpleado;
 END$$
 
 DELIMITER ;
 
 DELIMITER $$
-CREATE PROCEDURE getEmpleadoByLocalId(
+CREATE PROCEDURE getEmpleadosByLocalId(
 	IN Id INT)
 BEGIN
 	SELECT * FROM Empleados WHERE local_id = Id;
@@ -639,6 +640,27 @@ BEGIN
     VALUES (name, appPaterno, appMaterno, sal, puesto, localId, userId);
 END$$
 
+DELIMITER ;
+
+-- Actualizar el Empleado
+DELIMITER $$
+CREATE PROCEDURE updateEmpleado(
+	IN IdEmpleado INT,
+	IN nombre VARCHAR(100),
+	IN appPaterno VARCHAR(100),
+	IN appMaterno VARCHAR(100),
+	IN salario DECIMAL(10,2),
+	IN puesto VARCHAR(100)
+)
+BEGIN
+	UPDATE Empleados
+	SET nombre = nombre,
+	apellido_paterno = appPaterno,
+	apellido_materno = appMaterno,
+	salario = salario,
+	puesto = puesto
+	WHERE id = IdEmpleado;
+END$$
 DELIMITER ;
 
 DELIMITER $$

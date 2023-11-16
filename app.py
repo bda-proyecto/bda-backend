@@ -227,7 +227,48 @@ def crear_empleado():
         
         flash('Empleado creado exitosamente', 'success')
         return redirect(url_for('crear_empleado'))
-    
+
+@app.route('/editar_empleado/<int:empleado_id>', methods=['GET', 'POST'])
+@is_logged_in_with_role(['admin'])
+def editar_empleado(empleado_id):
+    if request.method == 'GET':
+        # Obtener información del empleado
+        empleado = obtener_empleado_por_id(empleado_id)
+
+        if empleado:
+            return render_template('editar_empleado.html', empleado=empleado)
+        else:
+            flash('Empleado no encontrado', 'danger')
+            return redirect(url_for('obtener_empleados'))
+
+    elif request.method == 'POST':
+        # Obtener datos del formulario
+        nombre = request.form['nombre']
+        apellido_paterno = request.form['apellido_paterno']
+        apellido_materno = request.form['apellido_materno']
+        salario = request.form['salario']
+        puesto = request.form['puesto']
+
+        try:
+            # Actualizar información del empleado
+            actualizar_empleado(empleado_id, nombre, apellido_paterno, apellido_materno, salario, puesto)
+
+            flash('Empleado actualizado exitosamente', 'success')
+            return redirect(url_for('obtener_empleados'))
+
+        except Exception as e:
+            # Manejar cualquier error
+            flash('Ocurrió un error al actualizar el empleado.', 'danger')
+            print(f"Error: {e}")
+
+    return redirect(url_for('obtener_empleados'))
+
+
+@app.route('/desactivar_empleado/<int:empleado_id>', methods=['GET', 'POST'])
+@is_logged_in_with_role(['admin'])
+def desactivar_empleado(empleado_id):
+    eliminar_empleado(empleado_id)
+    return redirect(url_for('obtener_empleados')
 
 ####
 # Métodos Auxiliares
@@ -272,6 +313,27 @@ def createEmpleado(nombre, apellido_paterno, apellido_materno, salario, puesto, 
     cursor = mysql.connection.cursor()
     resultado = cursor.callproc('insertEmpleadoInLocal',(nombre, apellido_paterno, apellido_materno, salario, puesto, localid,))
     cursor.commit()
+    cursor.close()
+
+# Función para obtener información de un empleado por su ID
+def obtener_empleado_por_id(empleado_id):
+    cursor = mysql.connection.cursor()
+    cursor.callproc('getEmpleadoById', (empleado_id,))
+    empleado = cursor.fetchone()
+    cursor.close()
+    return empleado
+
+# Función para actualizar información de un empleado
+def actualizar_empleado(empleado_id, nombre, apellido_paterno, apellido_materno, salario, puesto):
+    cursor = mysql.connection.cursor()
+    cursor.callproc('updateEmpleado', (empleado_id, nombre, apellido_paterno, apellido_materno, salario, puesto))
+    mysql.connection.commit()
+    cursor.close()
+
+def eliminar_empleado(empleado_id):
+    cursor = mysql.connection.cursor()
+    cursor.callproc('deleteEmpleado', (empleado_id,)
+    mysql.connection.commit()
     cursor.close()
 
 # # # # 
