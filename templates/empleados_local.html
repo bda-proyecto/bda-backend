@@ -17,7 +17,7 @@
     <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav">
             <li class="nav-item active">
-                <a class="nav-link" href="#">Inicio <span class="sr-only">(actual)</span></a>
+                <a class="nav-link" href="/dashboard">Inicio <span class="sr-only">(actual)</span></a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="#">Productos</a>
@@ -70,7 +70,8 @@
 		    <td>{{ empleado[5] }}</td>
 		    <td>
 		    <a class="btn btn-info" href="{{ url_for('editar_empleado',empleado_id=empleado[0])}}"> Editar</a>
-		    <a class="btn btn-danger" href="{{ url_for('eliminar_empleado', empleado_id=empleado[0]) }}"></a>
+		    <a class="btn btn-danger" href="{{ url_for('desactivar_empleado', empleado_id=empleado[0]) }}">Desactivar</a>
+		    <a class="btn btn-warning" href="{{ url_for('activar_empleado', empleado_id=empleado[0]) }}">Activar</a>
 		    </td>
 
 		    <!-- Agrega más celdas según sea necesario -->

@@ -642,6 +642,39 @@ END$$
 
 DELIMITER ;
 
+-- Conseguir Usuario
+DELIMITER $$
+CREATE PROCEDURE getUsuarioByEmail(
+	IN correo VARCHAR(100)
+)
+BEGIN
+	SELECT * FROM Usuarios
+	WHERE email = correo;
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE PROCEDURE deactivateEmpleado(
+IN usuario_id INT
+)
+BEGIN
+ UPDATE Usuarios
+ SET activo = 0
+ WHERE id = usuario_id;
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE PROCEDURE activateEmpleado(
+IN usuario_id INT
+)
+BEGIN
+ UPDATE Usuarios
+ SET activo = 1
+ WHERE id = usuario_id;
+END$$
+DELIMITER ;
+
 -- Actualizar el Empleado
 DELIMITER $$
 CREATE PROCEDURE updateEmpleado(
@@ -663,6 +696,20 @@ BEGIN
 END$$
 DELIMITER ;
 
+DELIMITER $$
+
+
+--- Locales
+
+CREATE PROCEDURE getLocalById(
+	IN IdLocal INT
+)
+BEGIN
+	SELECT * FROM Locales
+	WHERE id = IdLocal;
+END$$
+
+DELIMITER;
 DELIMITER $$
 --- Reportes Financieros
 
@@ -774,19 +821,5 @@ BEGIN
     SET totalVentaConDescuento = totalVenta - (totalVenta * (porcentajeDescuento / 100));
 
     UPDATE ventas SET total_venta = totalVentaConDescuento WHERE id = ventaId;
-END$$
-DELIMITER ;
-
-DELIMITER $$
--- Obtener el total de descuentos aplicados en un rango de fechas
-CREATE PROCEDURE getTotalDescuentosPorFecha(
-    IN fechaInicio DATE,
-    IN fechaFin DATE,
-    OUT totalDescuentos DECIMAL(10,2)
-)
-BEGIN
-    SELECT COALESCE(SUM(total_venta - total_venta_con_descuento), 0) INTO totalDescuentos
-    FROM ventas
-    WHERE fecha_venta BETWEEN fechaInicio AND fechaFin;
 END$$
 DELIMITER ;

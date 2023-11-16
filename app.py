@@ -113,26 +113,31 @@ def login():
         email = request.form['email']
         password_candidate = request.form['password']
 
-        # Ejecutar el procedimiento almacenado para obtener la información del cliente por correo electrónico
+        # Ejecutar el procedimiento almacenado para obtener la información del usuario por correo electrónico
         cursor = mysql.connection.cursor()
         result = cursor.callproc('getUsuarioByEmail', (email,))
         data = cursor.fetchall()
         cursor.close()
-        cursor = mysql.connection.cursor()
-        result = cursor.callproc('getEmpleadoById', (data[0][0],))
-        resultado = cursor.fetchall()
-        cursor.close()
-        print(data)
-        print(resultado)
-        if data and password_candidate == data[0][2]:
+
+        if data and data[0][3] == 'empleado':
+            # Si es un empleado, obtener su información adicional
+            cursor = mysql.connection.cursor()
+            result = cursor.callproc('getEmpleadoById', (data[0][0],))
+            empleado_data = cursor.fetchall()
+            cursor.close()
+        else:
+            empleado_data = None
+
+        if data and password_candidate == data[0][2] and data[0][4]:  # Verificar contraseña y que el usuario esté activo
             session['logged_in'] = True
             session['user_id'] = data[0][0]
             session['user_role'] = data[0][3]
-            session['local_id'] = resultado[0][6]
+            if empleado_data:
+                session['local_id'] = empleado_data[0][6]
             flash('¡Inicio de sesión exitoso!', 'success')
             return redirect(url_for('dashboard'))
         else:
-            flash('Correo electrónico o contraseña incorrectos', 'danger')
+            flash('Correo electrónico o contraseña incorrectos o cuenta desactivada', 'danger')
 
     return render_template('login.html')
 
@@ -142,6 +147,9 @@ def login():
 def dashboard():
     # Obtener el rol del usuario desde la sesión o la base de datos
     user_role = session.get('user_role', None)
+    local_id = session.get('local_id', None)
+
+    local = obtener_local(local_id) 
 
     # Seleccionar la plantilla según el rol del usuario
     if user_role == 'cliente':
@@ -157,7 +165,7 @@ def dashboard():
         flash('Rol desconocido', 'danger')
         return redirect(url_for('login'))
 
-    return render_template(template_name)
+    return render_template(template_name, local=local)
 
 
 
@@ -267,8 +275,27 @@ def editar_empleado(empleado_id):
 @app.route('/desactivar_empleado/<int:empleado_id>', methods=['GET', 'POST'])
 @is_logged_in_with_role(['admin'])
 def desactivar_empleado(empleado_id):
-    eliminar_empleado(empleado_id)
-    return redirect(url_for('obtener_empleados')
+    try:
+        desactivar_empleado(empleado_id)
+        flash('Empleado desactivado exitosamente', 'success')
+    except Exception as e:
+        flash('Ocurrió un error al desactivar el empleado.', 'danger')
+        print(f"Error: {e}")
+    
+    return redirect(url_for('obtener_empleados'))
+
+@app.route('/activar_empleado/<int:empleado_id>', methods=['GET', 'POST'])
+@is_logged_in_with_role(['admin'])
+def activar_empleado(empleado_id):
+    try:
+        activar_empleado(empleado_id)
+        flash('Empleado activado exitosamente', 'success')
+    except Exception as e:
+        flash('Ocurrió un error al activar el empleado.', 'danger')
+        print(f"Error: {e}")
+
+    return redirect(url_for('obtener_empleados'))
+
 
 ####
 # Métodos Auxiliares
@@ -330,11 +357,28 @@ def actualizar_empleado(empleado_id, nombre, apellido_paterno, apellido_materno,
     mysql.connection.commit()
     cursor.close()
 
-def eliminar_empleado(empleado_id):
+# Función para desactivar el usuario de un empleado
+def desactivar_empleado(usuario_id):
     cursor = mysql.connection.cursor()
-    cursor.callproc('deleteEmpleado', (empleado_id,)
+    cursor.callproc('deactivateEmpleado', (usuario_id,))
     mysql.connection.commit()
     cursor.close()
+
+# Función para activar el usuario de un empelado
+def activar_empleado(usuario_id):
+    cursor = mysql.connection.cursor()
+    cursor.callproc('activateEmpleado', (usuario_id,))
+    mysql.connection.commit()
+    cursor.close()
+
+### Local
+
+def obtener_local(local_id):
+    cursor = mysql.connection.cursor()
+    cursor.callproc('getLocalById', (local_id,))
+    local = cursor.fetchone()
+    return local
+
 
 # # # # 
 
