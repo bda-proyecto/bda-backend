@@ -205,30 +205,17 @@ def crear_empleado():
                 return redirect(url_for('crear_empleado'))
 
             # Crear nuevo usuario
-            crear_usuario(email, password, rol='empleado')
+            crear_usuario(email, password, rol=puesto)
 
             # Obtener el ID del usuario recién creado
             usuario_id = obtener_id_usuario(email)
-
+            print(usuario_id)
             if usuario_id:
-                # Crear nuevo cliente asociado al usuario
+                # Crear nuevo empleado asociado al usuario
                 cursor = mysql.connection.cursor()
-                cursor.callproc('insertCliente', (nombre, apellido_paterno, apellido_materno, salario, puesto))
+                cursor.callproc('insertEmpleadoInLocal', (nombre, apellido_paterno, apellido_materno, salario, puesto, local_id, usuario_id))
                 mysql.connection.commit()
                 cursor.nextset()
-                cursor.close()
-
-                # Obtener el último ID insertado en Clientes
-                cursor = mysql.connection.cursor()
-                cursor.callproc('getLastInsertedClienteId')
-                cliente_id = cursor.fetchone()[0]
-                cursor.nextset()
-                cursor.close()
-
-                # Actualizar directamente el cliente_id en la tabla de usuarios
-                cursor = mysql.connection.cursor()
-                cursor.execute('UPDATE Empleados SET id = %s WHERE id = %s', (cliente_id, usuario_id))
-                mysql.connection.commit()
                 cursor.close()
 
                 flash('Empleado creado exitosamente', 'success')

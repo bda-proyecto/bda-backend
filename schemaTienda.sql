@@ -138,8 +138,10 @@ CREATE TABLE Empleados (
  salario DECIMAL (10,2) NOT NULL,
  puesto VARCHAR(20) NOT NULL,
  local_id INT NOT NULL,
+ usuario_id INT NOT NULL,
  PRIMARY KEY (id),
- FOREIGN KEY (local_id) REFERENCES Locales (id)
+ FOREIGN KEY (local_id) REFERENCES Locales (id),
+ FOREIGN KEY (usuario_id) REFERENCES Usuarios (id)
 );
 
 

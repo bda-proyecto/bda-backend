@@ -623,9 +623,25 @@ END$$
 DELIMITER ;
 
 DELIMITER $$
-CREATE PROCEDURE 
+-- Procedimiento para insertar un nuevo empleado asociado a un usuario
+CREATE PROCEDURE insertEmpleadoInLocal(
+    IN name VARCHAR(100),
+    IN appPaterno VARCHAR(100),
+    IN appMaterno VARCHAR(100),
+    IN sal DECIMAL(10,2),
+    IN puesto VARCHAR(100),
+    IN localId INT,
+    IN userId INT
+)
+BEGIN
+    -- Insertar un nuevo empleado asociado al usuario
+    INSERT INTO Empleados (nombre, apellido_paterno, apellido_materno, salario, puesto, local_id, usuario_id)
+    VALUES (name, appPaterno, appMaterno, sal, puesto, localId, userId);
+END$$
 
+DELIMITER ;
 
+DELIMITER $$
 --- Reportes Financieros
 
 -- Obtener el total de ventas por cliente
