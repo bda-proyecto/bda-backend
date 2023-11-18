@@ -95,6 +95,7 @@ CREATE TABLE Locales (
  id INT NOT NULL AUTO_INCREMENT,
  nombre VARCHAR(50),
  direccion VARCHAR(100),
+ imagen VARCHAR(100),
  PRIMARY KEY (id)
 );
 

@@ -709,7 +709,47 @@ BEGIN
 	WHERE id = IdLocal;
 END$$
 
-DELIMITER;
+DELIMITER ;
+
+--- Productos
+
+DELIMITER $$
+CREATE PROCEDURE getProductos(
+	IN IdLocal INT
+)
+BEGIN
+	SELECT * FROM Productos p JOIN Productos_Locales pl
+	ON p.id = pl.producto_id WHERE pl.local_id = IdLocal;
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE PROCEDURE deactivateProducto(
+	IN IdProductoLocal INT
+)
+BEGIN
+	UPDATE Productos_Locales
+	SET disponibilidad = 0
+	WHERE id = IdProductoLocal;
+END$$
+
+DELIMITER ;
+
+
+DELIMITER $$
+CREATE PROCEDURE activateProducto(
+        IN IdProductoLocal INT
+)
+BEGIN
+        UPDATE Productos_Locales
+        SET disponibilidad = 1
+        WHERE id = IdProductoLocal;
+END$$
+
+DELIMITER ;
+
+
+
 DELIMITER $$
 --- Reportes Financieros
 

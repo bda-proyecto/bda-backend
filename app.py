@@ -119,7 +119,7 @@ def login():
         data = cursor.fetchall()
         cursor.close()
 
-        if data and data[0][3] == 'empleado':
+        if data and (data[0][3] == 'empleado' or data[0][3] == 'admin'):
             # Si es un empleado, obtener su información adicional
             cursor = mysql.connection.cursor()
             result = cursor.callproc('getEmpleadoById', (data[0][0],))
@@ -134,6 +134,7 @@ def login():
             session['user_role'] = data[0][3]
             if empleado_data:
                 session['local_id'] = empleado_data[0][6]
+                print(empleado_data[0][6])
             flash('¡Inicio de sesión exitoso!', 'success')
             return redirect(url_for('dashboard'))
         else:
@@ -149,8 +150,9 @@ def dashboard():
     user_role = session.get('user_role', None)
     local_id = session.get('local_id', None)
 
-    local = obtener_local(local_id) 
-
+    local = obtener_local(local_id)
+    print(local)
+    print(local_id)
     # Seleccionar la plantilla según el rol del usuario
     if user_role == 'cliente':
         template_name = 'dashboard_cliente.html'
@@ -296,6 +298,41 @@ def activar_empleado(empleado_id):
 
     return redirect(url_for('obtener_empleados'))
 
+#######################################################
+#           PRODUCTOS
+#######################################################
+
+@app.route('/productos')
+@is_logged_in_with_role(['admin'])
+def obtener_productos():
+    admin_id = session.get('user_id', None)
+    local_id = session.get('local_id', None)
+    productos = obtener_productos(local_id)
+    return render_template('productos_local.html', productos=productos)
+
+@app.route('/desactivar_producto/<int:producto_local_id>', methods=['GET', 'POST'])
+@is_logged_in_with_role(['admin'])
+def desactivar_producto(producto_local_id):
+    try:
+        desactivar_producto(producto_local_id)
+        flash('Producto desactivado exitosamente', 'success')
+    except Exception as e:
+        flash('Ocurrió un error al activar el producto.', 'danger')
+        print(f"Error: {e}")
+
+    return redirect(url_for('obtener_productos'))
+
+@app.route('/activar_producto/<int:producto_local_id>', methods=['GET', 'POST'])
+@is_logged_in_with_role(['admin'])
+def activar_producto(producto_local_id):
+    try:
+        activar_producto(producto_local_id)
+        flash('Producto activado exitosamente', 'success')
+    except Exception as e:
+        flash('Ocurrió un error al activar el producto.', 'danger')
+        print(f"Error: {e}")
+
+    return redirect(url_for('obtener_productos'))
 
 ####
 # Métodos Auxiliares
@@ -379,6 +416,67 @@ def obtener_local(local_id):
     local = cursor.fetchone()
     return local
 
+### Categorias
+
+def create_categoria(nombre_categoria):
+    cursor = mysql.connection.cursor()
+    cursor.callproc('insertCategoria',(nombre_categoria,))
+    mysql.connection.commit()
+
+def edit_categoria(categoria_id, nombre_categoria):
+    cursor = mysql.connection.cursor()
+    cursor.callproc('updateCategoria',(categoria_id, nombre_categoria))
+    mysql.connection.commit()
+
+def get_categorias():
+    cursor = mysql.connection.cursor()
+    cursor.callproc('getAllCategorias')
+    categorias = cursor.fetchall()
+    return categorias
+
+def obtener_cateogria_id(categoria_id):
+    cursor = mysql.connection.cursor()
+    cursor.callproc('getCategoriaById',(categoria_id,))
+    categoria = cursor.fetchone()[0]
+    return categoria
+
+### Productos
+
+def obtener_productos(local_id):
+    cursor = mysql.connection.cursor()
+    cursor.callproc('getProductos',(local_id,))
+    productos = cursor.fetchall()
+    return productos
+   
+def desactivar_producto(productolocal_id):
+    cursor = mysql.connection.cursor()
+    cursor.callproc('deactivateProducto',(productolocal_id,))
+    mysql.connection.commit()
+    cursor.close()
+
+def activar_producto(productolocal_id):
+    cursor = mysql.connection.cursor()
+    cursor.callproc('activateProducto',(productolocal_id,))
+    mysql.connection.commit()
+    cursor.close()
+
+def crear_producto(nombre_producto, descripcion, precio_compra, precio_venta, categoria_id):
+    cursor = mysql.connection.cursor()
+    cursor.callproc('insertProducto',(nombre_producto, descripcion, precio_compra, precio_venta, categoria_id))
+    mysql.connection.commit()
+    cursor.close()
+
+def editar_producto(producto_id, nombre_producto, descripcion, precio_compra, precio_venta, categoria_id):
+    cursor = mysql.connection.cursor()
+    cursor.callproc('updateProducto',(producto_id, nombre_producto, descripcion, precio_compra, precio_venta, categoria_id))
+    mysql.connection.commit()
+    cursor.close()
+
+def obtener_producto_id(producto_id):
+    cursor = mysql.connection.cursor()
+    cursor.callproc('getProductoById',(producto_id))
+    producto = cursor.fetchone[0]
+    return producto
 
 # # # # 
 

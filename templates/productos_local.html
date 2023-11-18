@@ -42,44 +42,45 @@
 <div class="container mt-4">
     <!-- Contenido principal del dashboard -->
     <h2>Bienvenido al Dashboard del Administrador</h2>
-    <!-- Botones de acción para la vista de empleados -->
+    <!-- Botones de acción para la vista de productos -->
     <div class="mb-3">
-        <a href="{{ url_for('crear_empleado') }}" class="btn btn-primary">Crear Empleado</a>
     </div>
-    <!-- Lista de empleados -->
+    <!-- Lista de productos -->
     <table class="table">
         <thead>
             <tr>
-                <th scope="col">#</th>
-                <th scope="col">Nombre</th>
-                <th scope="col">Apellido Paterno</th>
-                <th scope="col">Apellido Materno</th>
-                <th scope="col">Salario</th>
-            	<th scope="col">Puesto</th>
-		<th scope="col">Acciones</th>
-	    </tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                <th>Precio Compra</th>
+                <th>Precio Venta</th>
+                <th>Categoría</th>
+		<th>Cantidad</th>
+		<th>Disponibilidad</th>
+                <th>Acciones</th>
+            </tr>
         </thead>
         <tbody>
-            {% for empleado in empleados %}
+            {% for producto in productos %}
                 <tr>
-                    <th scope="row">{{ empleado[0] }}</th>
-                    <td>{{ empleado[1] }}</td>
-                    <td>{{ empleado[2]}}</td>
-                    <td>{{ empleado[3] }}</td>
-                    <td>{{ empleado[4]}}</td>
-		    <td>{{ empleado[5] }}</td>
+                    <td>{{ producto[0] }}</td>
+                    <td>{{ producto[1] }}</td>
+                    <td>{{ producto[2] }}</td>
+                    <td>{{ producto[3] }}</td>
+                    <td>{{ producto[4] }}</td>
+                    <td>{{ producto[5] }}</td>
+		    <td>{{ producto[7] }}</td>
+                    <td>{{ producto[10]}}</td> 
 		    <td>
-		    <a class="btn btn-info" href="{{ url_for('editar_empleado',empleado_id=empleado[0])}}"> Editar</a>
-		    <a class="btn btn-danger" href="{{ url_for('desactivar_empleado', empleado_id=empleado[0]) }}">Desactivar</a>
-		    <a class="btn btn-warning" href="{{ url_for('activar_empleado', empleado_id=empleado[0]) }}">Activar</a>
-		    </td>
-
-		    <!-- Agrega más celdas según sea necesario -->
+                      <a class="btn btn-danger" href="{{ url_for('desactivar_producto', producto_local_id=producto[6]) }}">Desactivar</a>            
+                      <a class="btn btn-warning" href="{{ url_for('activar_producto', producto_local_id=producto[6]) }}">Activar</a>
+		   </td>
                 </tr>
             {% endfor %}
         </tbody>
     </table>
 </div>
+
 
 <!-- Agrega enlaces a los archivos de Bootstrap JS y otros scripts aquí -->
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
