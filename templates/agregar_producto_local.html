@@ -39,54 +39,28 @@
     </div>
 </nav>
 
-<div class="container mt-4">
-    <!-- Contenido principal del dashboard -->
-    <h2>Bienvenido al Dashboard del Administrador</h2>
-    <a class="btn btn-primary" href="/categorias">Ver Categorias</a>
-    <!-- Botones de acción para la vista de productos -->
-    <div class="mb-3">
-    </div>
-    <h2>Productos Generales</h2>
-    <!-- Lista de productos -->
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Nombre</th>
-                <th>Descripción</th>
-                <th>Precio Compra</th>
-                <th>Precio Venta</th>
-                <th>Categoría</th>
-                <th>Proveedor</th>
-                <th>Imagen</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for producto in productos %}
-                <tr>
-                    <td>{{ producto[0] }}</td>
-                    <td>{{ producto[1] }}</td>
-                    <td>{{ producto[2] }}</td>
-                    <td>{{ producto[3] }}</td>
-                    <td>{{ producto[4] }}</td>
-                    <td>{{ producto[5] }}</td>
-                    <td>{{ producto[6] }}</td>
-		    <td>
-		    <img src="{{ url_for('static', filename='images/productos/' + producto[7]) }}" alt="Descripción de la imagen"  class="mt-2" style="max-width: 200px;">
-		    </td>
-                    <td>
-                        <!-- Agregar enlaces a las páginas de edición y desactivación/activación -->
-                        <a href="{{ url_for('editar_producto', producto_id=producto[0]) }}" class="btn btn-warning btn-sm">Editar</a>
-                    </td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>    
-    	<a class="btn btn-primary" href="/crear_producto">Crear Productos</a>
-	<a class="btn btn-primary" href="/productos_locales">Asignar Producto a Local</a>	
-</div>
-
+  <div class="container mt-4">
+    <h2>Agregar Producto Local</h2>
+    <form method="POST" action="{{ url_for('agregar_producto_local') }}">
+      <div class="form-group">
+        <label for="cantidad">Cantidad:</label>
+        <input type="number" class="form-control" name="cantidad" required>
+      </div>
+      <div class="form-group">
+        <label for="producto_id">Producto:</label>
+        <select class="form-control" name="producto_id" required>
+          {% for producto in productos %}
+            <option value="{{ producto[0]}}">{{ producto[1] }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="fecha_ingreso">Fecha de Ingreso:</label>
+        <input type="date" class="form-control" name="fecha_ingreso" required>
+      </div>
+      <button type="submit" class="btn btn-primary">Agregar Producto Local</button>
+    </form>
+  </div>
 
 <!-- Agrega enlaces a los archivos de Bootstrap JS y otros scripts aquí -->
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>

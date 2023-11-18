@@ -39,55 +39,44 @@
     </div>
 </nav>
 
-<div class="container mt-4">
-    <!-- Contenido principal del dashboard -->
-    <h2>Bienvenido al Dashboard del Administrador</h2>
-    <a class="btn btn-primary" href="/categorias">Ver Categorias</a>
-    <!-- Botones de acción para la vista de productos -->
-    <div class="mb-3">
-    </div>
-    <h2>Productos Generales</h2>
-    <!-- Lista de productos -->
-    <table class="table table-striped">
+<div class="container mt-5">
+    <h2>Productos Locales</h2>
+    <table class="table">
         <thead>
             <tr>
                 <th>ID</th>
-                <th>Nombre</th>
-                <th>Descripción</th>
-                <th>Precio Compra</th>
-                <th>Precio Venta</th>
-                <th>Categoría</th>
-                <th>Proveedor</th>
-                <th>Imagen</th>
+                <th>Cantidad</th>
+                <th>Local ID</th>
+                <th>Producto ID</th>
+                <th>Disponibilidad</th>
+                <th>Fecha de Ingreso</th>
                 <th>Acciones</th>
             </tr>
         </thead>
         <tbody>
-            {% for producto in productos %}
+            {% for producto_local in productos_locales %}
                 <tr>
-                    <td>{{ producto[0] }}</td>
-                    <td>{{ producto[1] }}</td>
-                    <td>{{ producto[2] }}</td>
-                    <td>{{ producto[3] }}</td>
-                    <td>{{ producto[4] }}</td>
-                    <td>{{ producto[5] }}</td>
-                    <td>{{ producto[6] }}</td>
-		    <td>
-		    <img src="{{ url_for('static', filename='images/productos/' + producto[7]) }}" alt="Descripción de la imagen"  class="mt-2" style="max-width: 200px;">
-		    </td>
+                    <td>{{ producto_local[0] }}</td>
+                    <td>{{ producto_local[1] }}</td>
+                    <td>{{ producto_local[2] }}</td>
+                    <td>{{ producto_local[3] }}</td>
+                    <td>{{ "Activo" if producto_local[4] == 1 else "Inactivo" }}</td>
+                    <td>{{ producto_local[5] }}</td>
                     <td>
-                        <!-- Agregar enlaces a las páginas de edición y desactivación/activación -->
-                        <a href="{{ url_for('editar_producto', producto_id=producto[0]) }}" class="btn btn-warning btn-sm">Editar</a>
+                        {% if producto_local[4] == 1 %}
+                            <a href="{{ url_for('desactivar_producto', producto_local_id=producto_local[0]) }}">Desactivar</a>
+                        {% else %}
+                            <a href="{{ url_for('activar_producto', producto_local_id=producto_local[0]) }}">Activar</a>
+                        {% endif %}
+                        <!-- Agrega más acciones según sea necesario -->
                     </td>
                 </tr>
             {% endfor %}
         </tbody>
-    </table>    
-    	<a class="btn btn-primary" href="/crear_producto">Crear Productos</a>
-	<a class="btn btn-primary" href="/productos_locales">Asignar Producto a Local</a>	
+    </table>
+
+    <a class="btn btn-primary" href="{{ url_for('agregar_producto_local') }}">Nuevo Producto Local</a>
 </div>
-
-
 <!-- Agrega enlaces a los archivos de Bootstrap JS y otros scripts aquí -->
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>

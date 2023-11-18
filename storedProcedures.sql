@@ -386,70 +386,67 @@ DELIMITER $$
 
 --- Inventarios
 
-CREATE PROCEDURE insertInventario(
-    IN productoId INT,
-    IN cantidad INT,
-    IN fechaIngreso DATE
+DELIMITER //
+
+CREATE PROCEDURE insertProductoLocal(
+    IN p_cantidad INT,
+    IN p_local_id INT,
+    IN p_producto_id INT,
+    IN p_disponibilidad TINYINT,
+    IN p_fecha_ingreso DATE
 )
 BEGIN
-    INSERT INTO Inventarios (producto_id, cantidad, fecha_ingreso)
-    VALUES (productoId, cantidad, fechaIngreso);
-END$$
+    INSERT INTO Productos_Locales (cantidad, local_id, producto_id, disponibilidad, fecha_ingreso)
+    VALUES (p_cantidad, p_local_id, p_producto_id, p_disponibilidad, p_fecha_ingreso);
+END //
+
 DELIMITER ;
 
-DELIMITER $$
-CREATE PROCEDURE updateInventario(
-    IN id INT,
-    IN productoId INT,
-    IN cantidad INT,
-    IN fechaIngreso DATE
+DELIMITER //
+
+CREATE PROCEDURE getProductosLocalesByLocalId(
+    IN p_local_id INT
 )
 BEGIN
-    UPDATE Inventarios
-    SET producto_id = productoId,
-        cantidad = cantidad,
-        fecha_ingreso = fechaIngreso
-    WHERE id = id;
-END$$
+    SELECT * FROM Productos_Locales WHERE local_id = p_local_id;
+END //
 
 DELIMITER ;
 
-DELIMITER $$
 
-CREATE PROCEDURE deleteInventario(
-    IN id INT
+DELIMITER //
+
+CREATE PROCEDURE deactivateProductoLocal(
+    IN p_producto_local_id INT
 )
 BEGIN
-    DELETE FROM Inventarios
-    WHERE id = id;
-END$$
+    UPDATE Productos_Locales SET disponibilidad = 0 WHERE id = p_producto_local_id;
+END //
 
 DELIMITER ;
 
-DELIMITER $$
+DELIMITER //
 
-CREATE PROCEDURE getInventarioById(
-    IN id INT
+CREATE PROCEDURE activateProductoLocal(
+    IN p_producto_local_id INT
 )
 BEGIN
-    SELECT *
-    FROM Inventarios
-    WHERE id = id;
-END$$
+    UPDATE Productos_Locales SET disponibilidad = 1 WHERE id = p_producto_local_id;
+END //
 
 DELIMITER ;
 
-DELIMITER $$
+DELIMITER //
 
-CREATE PROCEDURE getAllInventarios()
+CREATE PROCEDURE getProductoLocalById(
+    IN p_producto_local_id INT
+)
 BEGIN
-    SELECT *
-    FROM Inventarios;
-END$$
+    SELECT * FROM Productos_Locales WHERE id = p_producto_local_id;
+END //
 
 DELIMITER ;
 
-DELIMITER $$
 
 --- Ventas
 

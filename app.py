@@ -399,7 +399,7 @@ def desactivar_producto(producto_local_id):
         flash('Ocurrió un error al activar el producto.', 'danger')
         print(f"Error: {e}")
 
-    return redirect(url_for('obtener_productos'))
+    return redirect(url_for('obtener_productos_locales'))
 
 @app.route('/activar_producto/<int:producto_local_id>', methods=['GET', 'POST'])
 @is_logged_in_with_role(['admin'])
@@ -411,7 +411,7 @@ def activar_producto(producto_local_id):
         flash('Ocurrió un error al activar el producto.', 'danger')
         print(f"Error: {e}")
 
-    return redirect(url_for('obtener_productos'))
+    return redirect(url_for('obtener_productos_locales'))
 
 # Ruta para la creación de un nuevo producto
 @app.route('/crear_producto', methods=['GET', 'POST'])
@@ -489,8 +489,33 @@ def editar_producto(producto_id):
         flash('Producto actualizado exitosamente', 'success')
         return redirect(url_for('obtener_productos'))
 
+########################################################
+#               PRODUCTOS_LOCALES
+####################################################
+@app.route('/productos_locales')
+@is_logged_in_with_role(['admin', 'empleado_almacen'])
+def obtener_productos_locales():
+    local_id = session.get('local_id', None)
+    productos_locales = obtener_productos_locales(local_id)
+    return render_template('productos_locales.html', productos_locales=productos_locales)
 
+# Ruta para agregar un producto local
+@app.route('/agregar_producto_local', methods=['GET', 'POST'])
+@is_logged_in_with_role(['admin', 'empleado_almacen'])
+def agregar_producto_local():
+    local_id = session.get('local_id', None)
+    if request.method == 'POST':
+        cantidad = request.form['cantidad']
+        producto_id = request.form['producto_id']
+        fecha_ingreso = request.form['fecha_ingreso']
 
+        # Llama a la función para agregar el producto local
+        agregar_producto_local(cantidad, local_id, producto_id, 1, fecha_ingreso)
+        return redirect(url_for('obtener_productos_locales'))
+
+    # Obtén la lista de productos para el formulario
+    productos = obtener_productos()
+    return render_template('agregar_producto_local.html', productos=productos)
 
 ####
 # Métodos Auxiliares
@@ -694,6 +719,53 @@ def obtener_producto_id(producto_id):
     producto = cursor.fetchone()
     cursor.close()
     return producto
+
+## Productos en Locales
+
+def agregar_producto_local(cantidad, local_id, producto_id, disponibilidad, fecha_ingreso):
+    try:
+        cursor = mysql.connection.cursor()
+        cursor.callproc('insertProductoLocal', (cantidad, local_id, producto_id, disponibilidad, fecha_ingreso))
+        mysql.connection.commit()
+        cursor.close()
+        flash('Producto local agregado exitosamente', 'success')
+    except Exception as err:
+        flash(f'Ocurrió un error: {err}', 'danger')
+
+def obtener_productos_locales(local_id):
+    cursor = mysql.connection.cursor()
+    cursor.callproc('getProductosLocalesByLocalId', (local_id,))
+    productos_locales = cursor.fetchall()
+    cursor.close()
+    return productos_locales
+
+def desactivar_producto_local(producto_local_id):
+    try:
+        cursor = mysql.connection.cursor()
+        cursor.callproc('deactivateProductoLocal', (producto_local_id,))
+        mysql.connection.commit()
+        cursor.close()
+        flash('Producto local desactivado exitosamente', 'success')
+    except Exception as err:
+        flash(f'Ocurrió un error: {err}', 'danger')
+
+def activar_producto_local(producto_local_id):
+    try:
+        cursor = mysql.connection.cursor()
+        cursor.callproc('activateProductoLocal', (producto_local_id,))
+        mysql.connection.commit()
+        cursor.close()
+        flash('Producto local activado exitosamente', 'success')
+    except Exception as err:
+        flash(f'Ocurrió un error: {err}', 'danger')
+
+def obtener_producto_local_por_id(producto_local_id):
+    cursor = mysql.connection.cursor()
+    cursor.callproc('getProductoLocalById', (producto_local_id,))
+    producto_local = cursor.fetchone()
+    cursor.close()
+    return producto_local
+
 
 # # # # 
 
