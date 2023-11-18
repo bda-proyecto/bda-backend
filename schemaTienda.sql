@@ -87,6 +87,7 @@ CREATE TABLE Productos (
  precio_venta DECIMAL (10,2),
  categoria_id INT NOT NULL,
  proveedor_id INT NOT NULL,
+ imagen VARCHAR(100),
  PRIMARY KEY (id),
  FOREIGN KEY (categoria_id) REFERENCES Categorias (id),
  FOREIGN KEY (proveedor_id) REFERENCES Proveedores (id)
