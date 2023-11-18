@@ -18,17 +18,6 @@ CREATE TABLE Categorias (
  PRIMARY KEY (id)
 );
 
-CREATE TABLE Productos (
- id INT NOT NULL AUTO_INCREMENT,
- nombre_producto VARCHAR(50),
- descripcion TEXT,
- precio_compra DECIMAL (10,2),
- precio_venta DECIMAL (10,2),
- categoria_id INT NOT NULL,
- PRIMARY KEY (id),
- FOREIGN KEY (categoria_id) REFERENCES Categorias (id)
-);
-
 CREATE TABLE Usuarios (
  id INT NOT NULL AUTO_INCREMENT,
  email VARCHAR(100) NOT NULL,
@@ -73,15 +62,6 @@ CREATE TABLE Ventas (
  FOREIGN KEY (direccion_id) REFERENCES Direcciones_Clientes (id),
  FOREIGN KEY (tipo_pago_id) REFERENCES Tipos_Pagos (id)
 );
-
-CREATE TABLE Detalles_Ventas(
- id INT NOT NULL AUTO_INCREMENT,
- cantidad_producto INT NOT NULL,
- producto_id INT NOT NULL,
- PRIMARY KEY (id),
- FOREIGN KEY (producto_id) REFERENCES Productos (id)
-);
-
 CREATE TABLE Proveedores (
  id INT NOT NULL AUTO_INCREMENT,
  nombre VARCHAR(100) NOT NULL,
@@ -99,6 +79,34 @@ CREATE TABLE Locales (
  PRIMARY KEY (id)
 );
 
+CREATE TABLE Productos (
+ id INT NOT NULL AUTO_INCREMENT,
+ nombre_producto VARCHAR(50),
+ descripcion TEXT,
+ precio_compra DECIMAL (10,2),
+ precio_venta DECIMAL (10,2),
+ categoria_id INT NOT NULL,
+ proveedor_id INT NOT NULL,
+ PRIMARY KEY (id),
+ FOREIGN KEY (categoria_id) REFERENCES Categorias (id),
+ FOREIGN KEY (proveedor_id) REFERENCES Proveedores (id)
+);
+
+CREATE TABLE Productos_Proveedores (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    producto_id INT,
+    proveedor_id INT,
+    FOREIGN KEY (producto_id) REFERENCES Productos (id),
+    FOREIGN KEY (proveedor_id) REFERENCES Proveedores (id)
+);
+
+CREATE TABLE Detalles_Ventas(
+ id INT NOT NULL AUTO_INCREMENT,
+ cantidad_producto INT NOT NULL,
+ producto_id INT NOT NULL,
+ PRIMARY KEY (id),
+ FOREIGN KEY (producto_id) REFERENCES Productos (id)
+);
 
 CREATE TABLE Pedidos (
  id INT NOT NULL AUTO_INCREMENT,

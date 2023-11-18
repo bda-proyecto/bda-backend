@@ -56,8 +56,7 @@
                 <th>Precio Compra</th>
                 <th>Precio Venta</th>
                 <th>Categoría</th>
-		<th>Cantidad</th>
-		<th>Disponibilidad</th>
+		<th>Imagen</th>
                 <th>Acciones</th>
             </tr>
         </thead>
@@ -70,17 +69,19 @@
                     <td>{{ producto[3] }}</td>
                     <td>{{ producto[4] }}</td>
                     <td>{{ producto[5] }}</td>
-		    <td>{{ producto[7] }}</td>
-                    <td>{{ producto[10]}}</td> 
+		    <td>            {% if producto[6] %}
+			    <img src="{{ producto[6]}}"/> 
+			    {% else %}
+              Sin imagen
+            {% endif %}</td>
 		    <td>
-                      <a class="btn btn-danger" href="{{ url_for('desactivar_producto', producto_local_id=producto[6]) }}">Desactivar</a>            
-                      <a class="btn btn-warning" href="{{ url_for('activar_producto', producto_local_id=producto[6]) }}">Activar</a>
 		   </td>
                 </tr>
             {% endfor %}
         </tbody>
     </table>
         <a class="btn btn-primary" href="/crear_producto">Crear Productos</a>
+	<a class="btn btn-primary" href="">Asignar Producto a Local</a>	
 </div>
 
 

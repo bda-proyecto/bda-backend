@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 from flask_mysqldb import MySQL
 from passlib.hash import sha256_crypt
 from functools import wraps
-import base64
+import os
 
 app = Flask(__name__)
 
@@ -331,6 +331,11 @@ def editar_categoria(categoria_id):
         flash('Categoría actualizada exitosamente', 'success')
         return redirect(url_for('obtener_categorias'))
 
+#######################################################
+#           PROVEEDORES
+#######################################################
+
+
 
 #######################################################
 #           PRODUCTOS
@@ -341,7 +346,7 @@ def editar_categoria(categoria_id):
 def obtener_productos():
     admin_id = session.get('user_id', None)
     local_id = session.get('local_id', None)
-    productos = obtener_productos(local_id)
+    productos = obtener_productos()
     return render_template('productos_local.html', productos=productos)
 
 @app.route('/desactivar_producto/<int:producto_local_id>', methods=['GET', 'POST'])
@@ -378,19 +383,24 @@ def crear_producto():
         precio_compra = request.form['precio_compra']
         precio_venta = request.form['precio_venta']
         categoria_id = request.form['categoria_id']
+        imagen = request.files['imagen']
 
-        # Manejar la carga de la imagen
-        imagen = request.files["imagen"].read()
+        # Verifica si la imagen está presente en la solicitud
+        if imagen:
+            # Guarda la imagen en el directorio
+            imagen_filename = os.path.join('static/images/productos', imagen.filename)
+            imagen.save(imagen_filename)
+        else:
+            # Si no se proporciona una imagen, puedes asignar un valor predeterminado o manejarlo según tus necesidades.
+            imagen_filename = 'static/images/productos/default.jpg'
 
-        # Llamar a la función para crear el producto
-        crear_producto(nombre_producto, descripcion, precio_compra, precio_venta, categoria_id, imagen_data)
+        # Llama a la función para crear el producto
+        crear_producto(nombre_producto, descripcion, precio_compra, precio_venta, categoria_id, imagen_filename)
         return redirect(url_for('obtener_productos'))
 
-    # Obtener la lista de categorías para el formulario
+    # Obtén la lista de categorías para el formulario
     categorias = get_categorias()
-
     return render_template('crear_producto.html', categorias=categorias)
-
 
 # Ruta para la edición de un producto
 @app.route('/editar_producto/<int:producto_id>', methods=['GET', 'POST'])
@@ -546,11 +556,40 @@ def obtener_categoria_id(categoria_id):
     categoria = cursor.fetchone()
     return categoria
 
+### Proveedores
+
+def obtener_proveedores():
+    cursor = mysql.connection.cursor()
+    cursor.callproc('getAllProveedores')
+    proveedores = cursor.fetchall()
+    return proveedores
+
+
+def obtener_proveedor_id(proveedor_id):
+    cursor = mysql.connection.cursor()
+    cursor.callproc('getProveedorById')
+    proveedor = cursor.fetchone()
+    return proveedor
+
+
+def crear_proveedor(nombreProveedor, telefono, direccion):
+    cursor = mysql.connection.cursor()
+    cursor.callproc('insertProveedor', (nombreProveedor, telefono, direccion))
+    mysql.connection.commit()
+    cursor.close()
+
+def editar_proveedor(proveedor_id, nombreProveedor, telefono, direccion):
+    cursor = mysql.connection.cursor()
+    cursor.callproc('updateProveedor', (proveedor_id, nombreProveedor, telefono, direccion))
+    mysql.connection.commit()
+    cursor.close()
+
+
 ### Productos
 
-def obtener_productos(local_id):
+def obtener_productos():
     cursor = mysql.connection.cursor()
-    cursor.callproc('getProductos',(local_id,))
+    cursor.callproc('getAllProductos')
     productos = cursor.fetchall()
     return productos
    
@@ -567,18 +606,16 @@ def activar_producto(productolocal_id):
     cursor.close()
 
 # Función para crear un nuevo producto
-def crear_producto(nombre_producto, descripcion, precio_compra, precio_venta, categoria_id, imagen):
+def crear_producto(nombre_producto, descripcion, precio_compra, precio_venta, categoria_id, imagen_referencia):
     try:
-        # Llamar al procedimiento almacenado insertProducto
-        print("insertando")
+        # Llama al procedimiento almacenado insertProducto
         cursor = mysql.connection.cursor()
-        cursor.callproc('insertProducto', (nombre_producto, descripcion, precio_compra, precio_venta, categoria_id, imagen))
+        cursor.callproc('insertProducto', (nombre_producto, descripcion, precio_compra, precio_venta, categoria_id, imagen_referencia))
         mysql.connection.commit()
         cursor.close()
         flash('Producto creado exitosamente', 'success')
     except Exception as err:
-        print('Ocurrió un error: {err}')
-        # Manejar la excepción
+        # Maneja la excepción
         flash(f'Ocurrió un error: {err}', 'danger')
 
 def obtener_producto_id(producto_id):

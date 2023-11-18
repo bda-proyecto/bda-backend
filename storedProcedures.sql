@@ -86,7 +86,7 @@ CREATE PROCEDURE insertProducto(
     IN precioCompra DECIMAL(10,2),
     IN precioVenta DECIMAL(10,2),
     IN categoriaId INT,
-    IN imagenData MEDIUMBLOB -- Nuevo parámetro para la imagen
+    IN imagen_path VARCHAR(100) -- Nuevo parámetro para la imagen
 )
 BEGIN
     DECLARE productoExistente INT;
@@ -99,7 +99,7 @@ BEGIN
     -- Si el producto no existe, insertarlo
     IF productoExistente = 0 THEN
         INSERT INTO Productos (nombre_producto, descripcion, precio_compra, precio_venta, categoria_id, imagen)
-        VALUES (nombreProducto, descripcion, precioCompra, precioVenta, categoriaId, imagenData);
+        VALUES (nombreProducto, descripcion, precioCompra, precioVenta, categoriaId, imagen_path);
     ELSE
         -- Manejar la lógica de error o mensaje aquí
         SIGNAL SQLSTATE '45000'
