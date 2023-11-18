@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Producto</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand" href="#">Mi Tienda</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+            <li class="nav-item active">
+                <a class="nav-link" href="/dashboard">Inicio <span class="sr-only">(actual)</span></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/productos">Productos</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Ventas</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/empleados">Empleados</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Pedidos</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Proveedores</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <h1>Crear Producto</h1>
+    <form method="post" action="/crear_producto" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="nombre_producto">Nombre del Producto:</label>
+            <input type="text" class="form-control" name="nombre_producto" required>
+        </div>
+        <div class="form-group">
+            <label for="descripcion">Descripción:</label>
+            <textarea class="form-control" name="descripcion" rows="3" required></textarea>
+        </div>
+        <div class="form-group">
+            <label for="precio_compra">Precio de Compra:</label>
+            <input type="number" class="form-control" name="precio_compra" step="0.01" required>
+        </div>
+        <div class="form-group">
+            <label for="precio_venta">Precio de Venta:</label>
+            <input type="number" class="form-control" name="precio_venta" step="0.01" required>
+        </div>
+        <div class="form-group">
+            <label for="categoria_id">Categoría:</label>
+            <select class="form-control" name="categoria_id" required>
+                {% for categoria in categorias %}
+                    <option value="{{ categoria[0] }}">{{ categoria[1] }}</option>
+                {% endfor %}
+            </select>
+        </div>
+	<div class="form-group">
+            <label for="imagen">Imagen:</label>
+            <input type="file" class="form-control-file" name="imagen">
+    	</div>
+        <button type="submit" class="btn btn-primary">Crear Producto</button>
+    </form>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+</body>
+</html>
+

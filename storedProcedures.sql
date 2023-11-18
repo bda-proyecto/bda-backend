@@ -76,23 +76,39 @@ END$$
 
 DELIMITER ;
 
-DELIMITER $$
-
 ---  PRODUCTOS
 
+DELIMITER $$
+
 CREATE PROCEDURE insertProducto(
-	IN nombreProducto VARCHAR(50),
-	IN descripcion TEXT,
-	IN precioCompra DECIMAL(10,2),
-	IN precioVenta DECIMAL(10,2),
-	IN categoriaId INT
+    IN nombreProducto VARCHAR(50),
+    IN descripcion TEXT,
+    IN precioCompra DECIMAL(10,2),
+    IN precioVenta DECIMAL(10,2),
+    IN categoriaId INT,
+    IN imagenData MEDIUMBLOB -- Nuevo parámetro para la imagen
 )
 BEGIN
-	INSERT INTO Productos (nombre_producto, descripcion, precio_compra, precio_venta, categoria_id)
-	VALUES (nombreProducto, descripcion, precioCompra, precioVenta, categoriaId);
+    DECLARE productoExistente INT;
+
+    -- Verificar si el producto ya existe
+    SELECT COUNT(*) INTO productoExistente
+    FROM Productos
+    WHERE nombre_producto = nombreProducto;
+
+    -- Si el producto no existe, insertarlo
+    IF productoExistente = 0 THEN
+        INSERT INTO Productos (nombre_producto, descripcion, precio_compra, precio_venta, categoria_id, imagen)
+        VALUES (nombreProducto, descripcion, precioCompra, precioVenta, categoriaId, imagenData);
+    ELSE
+        -- Manejar la lógica de error o mensaje aquí
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'El producto ya existe';
+    END IF;
 END$$
 
 DELIMITER ;
+
 
 DELIMITER $$
 

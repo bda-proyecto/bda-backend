@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 from flask_mysqldb import MySQL
 from passlib.hash import sha256_crypt
 from functools import wraps
+import base64
 
 app = Flask(__name__)
 
@@ -13,7 +14,6 @@ app.config['MYSQL_PASSWORD'] = '123'
 app.config['MYSQL_DB'] = 'Tienda'
 
 app.secret_key = '123##'
-
 
 mysql = MySQL(app)
 
@@ -368,6 +368,64 @@ def activar_producto(producto_local_id):
 
     return redirect(url_for('obtener_productos'))
 
+# Ruta para la creación de un nuevo producto
+@app.route('/crear_producto', methods=['GET', 'POST'])
+@is_logged_in_with_role(['admin'])
+def crear_producto():
+    if request.method == 'POST':
+        nombre_producto = request.form['nombre_producto']
+        descripcion = request.form['descripcion']
+        precio_compra = request.form['precio_compra']
+        precio_venta = request.form['precio_venta']
+        categoria_id = request.form['categoria_id']
+
+        # Manejar la carga de la imagen
+        imagen = request.files["imagen"].read()
+
+        # Llamar a la función para crear el producto
+        crear_producto(nombre_producto, descripcion, precio_compra, precio_venta, categoria_id, imagen_data)
+        return redirect(url_for('obtener_productos'))
+
+    # Obtener la lista de categorías para el formulario
+    categorias = get_categorias()
+
+    return render_template('crear_producto.html', categorias=categorias)
+
+
+# Ruta para la edición de un producto
+@app.route('/editar_producto/<int:producto_id>', methods=['GET', 'POST'])
+@is_logged_in_with_role(['admin'])
+def editar_producto(producto_id):
+    if request.method == 'GET':
+        # Obtener información del producto
+        producto = obtener_producto_id(producto_id)
+
+        if producto:
+            # Obtener la lista de categorías para el formulario
+            categorias = get_categorias()
+            return render_template('editar_producto.html', producto=producto, categorias=categorias)
+        else:
+            flash('Producto no encontrado', 'danger')
+            return redirect(url_for('obtener_productos'))
+
+    elif request.method == 'POST':
+        # Obtener datos del formulario
+        nombre_producto = request.form['nombre_producto']
+        descripcion = request.form['descripcion']
+        precio_compra = request.form['precio_compra']
+        precio_venta = request.form['precio_venta']
+        categoria_id = request.form['categoria_id']
+        
+        # Manejar la carga de la imagen
+        imagen = request.files['imagen']
+        imagen_data = imagen.read()  # Obtener los datos binarios de la imagen
+
+
+        # Llamar a la función para editar el producto
+        editar_producto(producto_id, nombre_producto, descripcion, precio_compra, precio_venta, categoria_id, imagen)
+        flash('Producto actualizado exitosamente', 'success')
+        return redirect(url_for('obtener_productos'))
+
 ####
 # Métodos Auxiliares
 
@@ -508,17 +566,20 @@ def activar_producto(productolocal_id):
     mysql.connection.commit()
     cursor.close()
 
-def crear_producto(nombre_producto, descripcion, precio_compra, precio_venta, categoria_id):
-    cursor = mysql.connection.cursor()
-    cursor.callproc('insertProducto',(nombre_producto, descripcion, precio_compra, precio_venta, categoria_id))
-    mysql.connection.commit()
-    cursor.close()
-
-def editar_producto(producto_id, nombre_producto, descripcion, precio_compra, precio_venta, categoria_id):
-    cursor = mysql.connection.cursor()
-    cursor.callproc('updateProducto',(producto_id, nombre_producto, descripcion, precio_compra, precio_venta, categoria_id))
-    mysql.connection.commit()
-    cursor.close()
+# Función para crear un nuevo producto
+def crear_producto(nombre_producto, descripcion, precio_compra, precio_venta, categoria_id, imagen):
+    try:
+        # Llamar al procedimiento almacenado insertProducto
+        print("insertando")
+        cursor = mysql.connection.cursor()
+        cursor.callproc('insertProducto', (nombre_producto, descripcion, precio_compra, precio_venta, categoria_id, imagen))
+        mysql.connection.commit()
+        cursor.close()
+        flash('Producto creado exitosamente', 'success')
+    except Exception as err:
+        print('Ocurrió un error: {err}')
+        # Manejar la excepción
+        flash(f'Ocurrió un error: {err}', 'danger')
 
 def obtener_producto_id(producto_id):
     cursor = mysql.connection.cursor()
