@@ -64,7 +64,15 @@
                 {% endfor %}
             </select>
         </div>
-	 <div class="form-group">
+	<div class="form-group">
+            <label for="proveedor_id">Proveedor</label>
+            <select class="form-control" id="proveedor_id" name="proveedor_id" required>
+                {% for proveedor in proveedores %}
+                    <option value="{{ proveedor[0] }}" {% if proveedor[0] == producto[6] %}selected{% endif %}>{{ proveedor[1] }}</option>
+                {% endfor %}
+            </select>
+        </div>
+	<div class="form-group">
         	<label for="imagen">Nueva Imagen:</label>
         	<input type="file" class="form-control-file" name="imagen">
    	 </div>

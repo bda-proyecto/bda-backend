@@ -86,6 +86,7 @@ CREATE PROCEDURE insertProducto(
     IN precioCompra DECIMAL(10,2),
     IN precioVenta DECIMAL(10,2),
     IN categoriaId INT,
+    IN proveedorId INT,  -- Nuevo parámetro para el proveedor
     IN imagen_path VARCHAR(100) -- Nuevo parámetro para la imagen
 )
 BEGIN
@@ -98,8 +99,8 @@ BEGIN
 
     -- Si el producto no existe, insertarlo
     IF productoExistente = 0 THEN
-        INSERT INTO Productos (nombre_producto, descripcion, precio_compra, precio_venta, categoria_id, imagen)
-        VALUES (nombreProducto, descripcion, precioCompra, precioVenta, categoriaId, imagen_path);
+        INSERT INTO Productos (nombre_producto, descripcion, precio_compra, precio_venta, categoria_id, proveedor_id, imagen)
+        VALUES (nombreProducto, descripcion, precioCompra, precioVenta, categoriaId, proveedorId, imagen_path);
     ELSE
         -- Manejar la lógica de error o mensaje aquí
         SIGNAL SQLSTATE '45000'
@@ -109,7 +110,6 @@ END$$
 
 DELIMITER ;
 
-
 DELIMITER $$
 
 CREATE PROCEDURE updateProducto(
@@ -118,15 +118,19 @@ CREATE PROCEDURE updateProducto(
     IN descripcion TEXT,
     IN precioCompra DECIMAL(10,2),
     IN precioVenta DECIMAL(10,2),
-    IN categoriaId INT
+    IN categoriaId INT,
+    IN proveedorId INT,  -- Nuevo parámetro para el proveedor
+    IN imagen_path VARCHAR(100) -- Nuevo parámetro para la imagen
 )
 BEGIN
     UPDATE Productos
     SET nombre_producto = nombreProducto,
         descripcion = descripcion,
         precio_compra = precioCompra,
-        precio_venta = precioVenta,  -- Agrega esta línea
-        categoria_id = categoriaId
+        precio_venta = precioVenta,
+        categoria_id = categoriaId,
+        proveedor_id = proveedorId,  -- Agrega esta línea
+        imagen = IFNULL(imagen_path, imagen)  -- Modifica esta línea
     WHERE id = id;
 END$$
 
@@ -311,12 +315,13 @@ DELIMITER $$
 -- Proveedores
 CREATE PROCEDURE insertProveedor(
     IN nombreProveedor VARCHAR(100),
-    IN telefono INT(12),
-    IN direccion VARCHAR(255)
+    IN rfcProv VARCHAR(15),
+    IN correoProv VARCHAR(50),
+    IN telefonoProv INT
 )
 BEGIN
-    INSERT INTO Proveedores (nombre_proveedor, telefono, direccion)
-    VALUES (nombreProveedor, telefono, direccion);
+    INSERT INTO Proveedores (nombre, RFC, email, telefono)
+    VALUES (nombreProveedor, rfcProv, correoProv, telefonoProv);
 END$$
 
 DELIMITER ;
@@ -324,17 +329,20 @@ DELIMITER ;
 DELIMITER $$
 
 CREATE PROCEDURE updateProveedor(
-    IN id INT,
+    IN proveedor_id INT,
     IN nombreProveedor VARCHAR(100),
-    IN telefono INT(12),
-    IN direccion VARCHAR(255)
+    IN rfcProv VARCHAR(15),
+    IN correoProv VARCHAR(50),
+    IN telefonoProv INT(12)
 )
 BEGIN
     UPDATE Proveedores
-    SET nombre_proveedor = nombreProveedor,
-        telefono = telefono,
-        direccion = direccion
-    WHERE id = id;
+    SET 
+        nombre = nombreProveedor,
+        RFC = rfcProv,
+        email = correoProv,
+        telefono = telefonoProv
+    WHERE id = proveedor_id;
 END$$
 
 DELIMITER ;

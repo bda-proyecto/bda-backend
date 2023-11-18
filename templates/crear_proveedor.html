@@ -1,0 +1,44 @@
+<!-- templates/crear_proveedor.html -->
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuevo Proveedor</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <!-- ... (mismo navbar) ... -->
+</nav>
+
+<div class="container mt-3">
+  <h2>Nuevo Proveedor</h2>
+  <form method="post" action="{{ url_for('crear_proveedor') }}">
+    <!-- Agrega los campos del formulario según tu modelo -->
+    <label for="nombreProveedor">Nombre:</label>
+    <input type="text" name="nombreProveedor" required>
+    
+    <label for="rfcProv">RFC:</label>
+    <input type="text" name="rfcProv" required>
+    
+    <label for="correoProv">Correo:</label>
+    <input type="email" name="correoProv" required>
+    
+    <label for="telefonoProv">Teléfono:</label>
+    <input type="text" name="telefonoProv" required>
+    
+    <button type="submit" class="btn btn-primary">Guardar</button>
+  </form>
+</div>
+
+<!-- Agrega los scripts y enlaces necesarios aquí -->
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+</body>
+</html>
+

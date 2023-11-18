@@ -335,7 +335,47 @@ def editar_categoria(categoria_id):
 #           PROVEEDORES
 #######################################################
 
+# Ruta para obtener todos los proveedores
+@app.route('/proveedores')
+@is_logged_in_with_role(['admin'])
+def obtener_proveedores():
+    proveedores = obtener_proveedores()
+    return render_template('proveedores.html', proveedores=proveedores)
 
+# Ruta para crear un nuevo proveedor
+@app.route('/crear_proveedor', methods=['GET', 'POST'])
+@is_logged_in_with_role(['admin'])
+def crear_proveedor():
+    if request.method == 'POST':
+        nombreProveedor = request.form['nombreProveedor']
+        rfcProv = request.form['rfcProv']
+        correoProv = request.form['correoProv']
+        telefonoProv = request.form['telefonoProv']
+        
+        # Llama a la función para crear el proveedor
+        crear_proveedor(nombreProveedor, rfcProv, correoProv, telefonoProv)
+        return redirect(url_for('obtener_proveedores'))
+
+    return render_template('crear_proveedor.html')
+
+# Ruta para editar un proveedor
+@app.route('/editar_proveedor/<int:proveedor_id>', methods=['GET', 'POST'])
+@is_logged_in_with_role(['admin'])
+def editar_proveedor(proveedor_id):
+    if request.method == 'GET':
+        proveedor = obtener_proveedor_id(proveedor_id)
+        return render_template('editar_proveedor.html', proveedor=proveedor)
+
+    elif request.method == 'POST':
+        nombreProveedor = request.form['nombreProveedor']
+        rfcProv = request.form['rfcProv']
+        correoProv = request.form['correoProv']
+        telefonoProv = request.form['telefonoProv']
+
+        # Llama a la función para editar el proveedor
+        editar_proveedor(proveedor_id, nombreProveedor, rfcProv, correoProv, telefonoProv)
+        flash('Proveedor actualizado exitosamente', 'success')
+        return redirect(url_for('obtener_proveedores'))
 
 #######################################################
 #           PRODUCTOS
@@ -383,6 +423,7 @@ def crear_producto():
         precio_compra = request.form['precio_compra']
         precio_venta = request.form['precio_venta']
         categoria_id = request.form['categoria_id']
+        proveedor_id = request.form['proveedor_id']  # Agrega esta línea
         imagen = request.files['imagen']
 
         # Verifica si la imagen está presente en la solicitud
@@ -393,14 +434,15 @@ def crear_producto():
         else:
             # Si no se proporciona una imagen, puedes asignar un valor predeterminado o manejarlo según tus necesidades.
             imagen_filename = 'static/images/productos/default.jpg'
-
+        print(proveedor_id)
         # Llama a la función para crear el producto
-        crear_producto(nombre_producto, descripcion, precio_compra, precio_venta, categoria_id, imagen_filename)
+        crear_producto(nombre_producto, descripcion, precio_compra, precio_venta, categoria_id, proveedor_id, imagen_filename)
         return redirect(url_for('obtener_productos'))
 
-    # Obtén la lista de categorías para el formulario
+    # Obtén la lista de categorías y proveedores para el formulario
     categorias = get_categorias()
-    return render_template('crear_producto.html', categorias=categorias)
+    proveedores = obtener_proveedores()  # Agrega esta línea
+    return render_template('crear_producto.html', categorias=categorias, proveedores=proveedores)
 
 # Ruta para la edición de un producto
 @app.route('/editar_producto/<int:producto_id>', methods=['GET', 'POST'])
@@ -411,9 +453,10 @@ def editar_producto(producto_id):
         producto = obtener_producto_id(producto_id)
 
         if producto:
-            # Obtener la lista de categorías para el formulario
+            # Obtener la lista de categorías y proveedores para el formulario
             categorias = get_categorias()
-            return render_template('editar_producto.html', producto=producto, categorias=categorias)
+            proveedores = obtener_proveedores()
+            return render_template('editar_producto.html', producto=producto, categorias=categorias, proveedores=proveedores)
         else:
             flash('Producto no encontrado', 'danger')
             return redirect(url_for('obtener_productos'))
@@ -425,16 +468,19 @@ def editar_producto(producto_id):
         precio_compra = request.form['precio_compra']
         precio_venta = request.form['precio_venta']
         categoria_id = request.form['categoria_id']
-        
+        proveedor_id = request.form['proveedor_id']  # Agrega esta línea
+
         # Manejar la carga de la imagen
         imagen = request.files['imagen']
-        imagen_data = imagen.read()  # Obtener los datos binarios de la imagen
-
+        imagen_filename = imagen.filename if imagen else None  # Modifica esta línea
 
         # Llamar a la función para editar el producto
-        editar_producto(producto_id, nombre_producto, descripcion, precio_compra, precio_venta, categoria_id, imagen)
+        editar_producto(producto_id, nombre_producto, descripcion, precio_compra, precio_venta, categoria_id, proveedor_id, imagen_filename)
         flash('Producto actualizado exitosamente', 'success')
         return redirect(url_for('obtener_productos'))
+
+
+
 
 ####
 # Métodos Auxiliares
@@ -548,6 +594,7 @@ def get_categorias():
     cursor = mysql.connection.cursor()
     cursor.callproc('getAllCategorias')
     categorias = cursor.fetchall()
+    cursor.close()
     return categorias
 
 def obtener_categoria_id(categoria_id):
@@ -562,27 +609,29 @@ def obtener_proveedores():
     cursor = mysql.connection.cursor()
     cursor.callproc('getAllProveedores')
     proveedores = cursor.fetchall()
+    cursor.close()
     return proveedores
 
 
 def obtener_proveedor_id(proveedor_id):
     cursor = mysql.connection.cursor()
-    cursor.callproc('getProveedorById')
+    cursor.callproc('getProveedorById',(proveedor_id,))
     proveedor = cursor.fetchone()
+    cursor.close()
     return proveedor
 
-
-def crear_proveedor(nombreProveedor, telefono, direccion):
+def crear_proveedor(nombreProveedor, rfcProv, correoProv, telefonoProv):
     cursor = mysql.connection.cursor()
-    cursor.callproc('insertProveedor', (nombreProveedor, telefono, direccion))
+    cursor.callproc('insertProveedor', (nombreProveedor, rfcProv, correoProv, telefonoProv))
     mysql.connection.commit()
     cursor.close()
 
-def editar_proveedor(proveedor_id, nombreProveedor, telefono, direccion):
+def editar_proveedor(proveedor_id, nombreProveedor, rfcProv, correoProv, telefonoProv):
     cursor = mysql.connection.cursor()
-    cursor.callproc('updateProveedor', (proveedor_id, nombreProveedor, telefono, direccion))
+    cursor.callproc('updateProveedor', (proveedor_id, nombreProveedor, rfcProv, correoProv, telefonoProv))
     mysql.connection.commit()
     cursor.close()
+
 
 
 ### Productos
@@ -606,17 +655,28 @@ def activar_producto(productolocal_id):
     cursor.close()
 
 # Función para crear un nuevo producto
-def crear_producto(nombre_producto, descripcion, precio_compra, precio_venta, categoria_id, imagen_referencia):
+def crear_producto(nombre_producto, descripcion, precio_compra, precio_venta, categoria_id, proveedor_id, imagen_referencia):
     try:
         # Llama al procedimiento almacenado insertProducto
         cursor = mysql.connection.cursor()
-        cursor.callproc('insertProducto', (nombre_producto, descripcion, precio_compra, precio_venta, categoria_id, imagen_referencia))
+        cursor.callproc('insertProducto', (nombre_producto, descripcion, precio_compra, precio_venta, categoria_id, proveedor_id, imagen_referencia))
         mysql.connection.commit()
         cursor.close()
         flash('Producto creado exitosamente', 'success')
     except Exception as err:
         # Maneja la excepción
         flash(f'Ocurrió un error: {err}', 'danger')
+
+def editar_producto(producto_id, nombre_producto, descripcion, precio_compra, precio_venta, categoria_id, proveedor_id, imagen_filename):
+    try:
+        # Lllama al procedimiento almacenado updateProducto
+        cursor = mysql.connection.cursor()
+        cursor.callproc('updateProducto', (producto_id, nombre_producto, descripcion, precio_compra, precio_venta, categoria_id, proveedor_id, imagen_filename))
+        mysql.connection.commit()
+        cursor.close()
+        flash('Producto editado correctamente', 'success')
+    except Exception as err:
+        flash(f'Ocurrio un error: {err}','danger')
 
 def obtener_producto_id(producto_id):
     cursor = mysql.connection.cursor()
