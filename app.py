@@ -474,6 +474,16 @@ def editar_producto(producto_id):
         imagen = request.files['imagen']
         imagen_filename = imagen.filename if imagen else None  # Modifica esta línea
 
+        # Verifica si la imagen está presente en la solicitud
+        if imagen:
+            # Guarda la imagen en el directorio
+            imagen_filename = os.path.join('static/images/productos', imagen.filename)
+            imagen.save(imagen_filename)
+            imagen_filename = imagen.filename
+        else:
+            # Si no se proporciona una imagen, puedes asignar un valor predeterminado o manejarlo según tus necesidades.
+            imagen_filename = 'default.jpg'
+
         # Llamar a la función para editar el producto
         editar_producto(producto_id, nombre_producto, descripcion, precio_compra, precio_venta, categoria_id, proveedor_id, imagen_filename)
         flash('Producto actualizado exitosamente', 'success')
@@ -680,8 +690,9 @@ def editar_producto(producto_id, nombre_producto, descripcion, precio_compra, pr
 
 def obtener_producto_id(producto_id):
     cursor = mysql.connection.cursor()
-    cursor.callproc('getProductoById',(producto_id))
-    producto = cursor.fetchone[0]
+    cursor.callproc('getProductoById',(producto_id,))
+    producto = cursor.fetchone()
+    cursor.close()
     return producto
 
 # # # # 

@@ -57,29 +57,26 @@
                 <th>Precio Venta</th>
                 <th>Categoría</th>
                 <th>Proveedor</th>
-                <th>Estado</th>
+                <th>Imagen</th>
                 <th>Acciones</th>
             </tr>
         </thead>
         <tbody>
             {% for producto in productos %}
                 <tr>
-                    <td>{{ producto.id }}</td>
-                    <td>{{ producto.nombre_producto }}</td>
-                    <td>{{ producto.descripcion }}</td>
-                    <td>{{ producto.precio_compra }}</td>
-                    <td>{{ producto.precio_venta }}</td>
-                    <td>{{ producto.categoria_nombre }}</td>
-                    <td>{{ producto.proveedor_nombre }}</td>
-                    <td>{{ "Activo" if producto.activo else "Inactivo" }}</td>
+                    <td>{{ producto[0] }}</td>
+                    <td>{{ producto[1] }}</td>
+                    <td>{{ producto[2] }}</td>
+                    <td>{{ producto[3] }}</td>
+                    <td>{{ producto[4] }}</td>
+                    <td>{{ producto[5] }}</td>
+                    <td>{{ producto[6] }}</td>
+		    <td>
+		    <img src="{{ url_for('static', filename='images/productos/' + producto[7]) }}" alt="Descripción de la imagen"  class="mt-2" style="max-width: 200px;">
+		    </td>
                     <td>
                         <!-- Agregar enlaces a las páginas de edición y desactivación/activación -->
-                        <a href="{{ url_for('editar_producto', producto_id=producto.id) }}" class="btn btn-warning btn-sm">Editar</a>
-                        {% if producto.activo %}
-                            <a href="{{ url_for('desactivar_producto', producto_local_id=producto.id) }}" class="btn btn-danger btn-sm">Desactivar</a>
-                        {% else %}
-                            <a href="{{ url_for('activar_producto', producto_local_id=producto.id) }}" class="btn btn-success btn-sm">Activar</a>
-                        {% endif %}
+                        <a href="{{ url_for('editar_producto', producto_id=producto[0]) }}" class="btn btn-warning btn-sm">Editar</a>
                     </td>
                 </tr>
             {% endfor %}
