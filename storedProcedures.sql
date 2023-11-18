@@ -3,11 +3,25 @@ USE Tienda;
 DELIMITER $$
 
 CREATE PROCEDURE insertCategoria(
-	IN nombreCategoria VARCHAR(50)
+    IN nombreCategoria VARCHAR(50)
 )
 BEGIN
-	INSERT INTO Categorias (nombre_categoria)
-	VALUES (nombreCategoria);
+    DECLARE categoriaExistente INT;
+
+    -- Verificar si la categoría ya existe
+    SELECT COUNT(*) INTO categoriaExistente
+    FROM Categorias
+    WHERE nombre_categoria = nombreCategoria;
+
+    -- Si la categoría no existe, insertarla
+    IF categoriaExistente = 0 THEN
+        INSERT INTO Categorias (nombre_categoria)
+        VALUES (nombreCategoria);
+    ELSE
+        -- Puedes manejar la lógica de error o mensaje aquí, por ejemplo:
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'La categoría ya existe';
+    END IF;
 END$$
 
 DELIMITER ;

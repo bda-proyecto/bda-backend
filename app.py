@@ -299,6 +299,40 @@ def activar_empleado(empleado_id):
     return redirect(url_for('obtener_empleados'))
 
 #######################################################
+#          CATEGORIAS
+#######################################################
+@app.route('/categorias')
+@is_logged_in_with_role(['admin'])
+def obtener_categorias():
+    categorias = get_categorias()
+    return render_template('categorias.html', categorias=categorias)
+
+# Ruta para crear una nueva categoría
+@app.route('/crear_categoria', methods=['GET', 'POST'])
+@is_logged_in_with_role(['admin'])
+def crear_categoria():
+    if request.method == 'POST':
+        nombre_categoria = request.form['nombre_categoria']
+        create_categoria(nombre_categoria)
+        return redirect(url_for('obtener_categorias'))
+    return render_template('crear_categoria.html')
+
+# Ruta para editar una categoría
+@app.route('/editar_categoria/<int:categoria_id>', methods=['GET', 'POST'])
+@is_logged_in_with_role(['admin'])
+def editar_categoria(categoria_id):
+    if request.method == 'GET':
+        categoria = obtener_categoria_id(categoria_id)
+        return render_template('editar_categoria.html', categoria=categoria)
+
+    elif request.method == 'POST':
+        nombre_categoria = request.form['nombre_categoria']
+        edit_categoria(categoria_id, nombre_categoria)
+        flash('Categoría actualizada exitosamente', 'success')
+        return redirect(url_for('obtener_categorias'))
+
+
+#######################################################
 #           PRODUCTOS
 #######################################################
 
@@ -419,14 +453,28 @@ def obtener_local(local_id):
 ### Categorias
 
 def create_categoria(nombre_categoria):
-    cursor = mysql.connection.cursor()
-    cursor.callproc('insertCategoria',(nombre_categoria,))
-    mysql.connection.commit()
+    try:
+        # Llamar al procedimiento almacenado insertCategoria
+        cursor = mysql.connection.cursor()
+        cursor.callproc('insertCategoria', (nombre_categoria,))
+        mysql.connection.commit()
+        cursor.close()
+        flash('Categoría creada exitosamente', 'success')
+    except Exception as err:
+        # Manejar la excepción (por ejemplo, categoría existente)
+        flash(f'Ocurrió un error: {err}', 'danger')
 
 def edit_categoria(categoria_id, nombre_categoria):
-    cursor = mysql.connection.cursor()
-    cursor.callproc('updateCategoria',(categoria_id, nombre_categoria))
-    mysql.connection.commit()
+    try:
+        # Llamar al procedimiento almacenado updateCategoria
+        cursor = mysql.connection.cursor()
+        cursor.callproc('updateCategoria', (categoria_id, nombre_categoria))
+        mysql.connection.commit()
+        cursor.close()
+        flash('Categoría actualizada exitosamente', 'success')
+    except Exception as err:
+        # Manejar la excepción
+        flash(f'Ocurrió un error: {err}', 'danger')
 
 def get_categorias():
     cursor = mysql.connection.cursor()
@@ -434,10 +482,10 @@ def get_categorias():
     categorias = cursor.fetchall()
     return categorias
 
-def obtener_cateogria_id(categoria_id):
+def obtener_categoria_id(categoria_id):
     cursor = mysql.connection.cursor()
     cursor.callproc('getCategoriaById',(categoria_id,))
-    categoria = cursor.fetchone()[0]
+    categoria = cursor.fetchone()
     return categoria
 
 ### Productos

@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard del Administrador</title>
-    <!-- Agrega enlaces a los archivos de Bootstrap CSS y otros estilos aquí -->
+    <title>Listado de Categorías</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
 </head>
 <body>
@@ -34,56 +33,26 @@
             <li class="nav-item">
                 <a class="nav-link" href="#">Proveedores</a>
             </li>
-            <!-- Agrega más elementos del menú según sea necesario -->
         </ul>
     </div>
 </nav>
 
 <div class="container mt-4">
-    <!-- Contenido principal del dashboard -->
-    <h2>Bienvenido al Dashboard del Administrador</h2>
-    <a class="btn btn-primary" href="/categorias">Ver Categorias</a>
-    <!-- Botones de acción para la vista de productos -->
-    <div class="mb-3">
-    </div>
-    <!-- Lista de productos -->
-    <table class="table">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Nombre</th>
-                <th>Descripción</th>
-                <th>Precio Compra</th>
-                <th>Precio Venta</th>
-                <th>Categoría</th>
-		<th>Cantidad</th>
-		<th>Disponibilidad</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for producto in productos %}
-                <tr>
-                    <td>{{ producto[0] }}</td>
-                    <td>{{ producto[1] }}</td>
-                    <td>{{ producto[2] }}</td>
-                    <td>{{ producto[3] }}</td>
-                    <td>{{ producto[4] }}</td>
-                    <td>{{ producto[5] }}</td>
-		    <td>{{ producto[7] }}</td>
-                    <td>{{ producto[10]}}</td> 
-		    <td>
-                      <a class="btn btn-danger" href="{{ url_for('desactivar_producto', producto_local_id=producto[6]) }}">Desactivar</a>            
-                      <a class="btn btn-warning" href="{{ url_for('activar_producto', producto_local_id=producto[6]) }}">Activar</a>
-		   </td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <h1>Listado de Categorías</h1>
+    <ul class="list-group">
+        {% for categoria in categorias %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                {{ categoria[1] }}
+                <div>
+                    <a class="btn btn-warning btn-sm mr-2" href="{{ url_for('editar_categoria', categoria_id=categoria[0]) }}">Editar</a>
+                </div>
+            </li>
+        {% endfor %}
+    </ul>
+    
+    <a class="btn btn-primary mt-3" href="{{ url_for('crear_categoria') }}">Crear Nueva Categoría</a>
 </div>
 
-
-<!-- Agrega enlaces a los archivos de Bootstrap JS y otros scripts aquí -->
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
