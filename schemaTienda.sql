@@ -9,7 +9,7 @@ CREATE USER IF NOT EXISTS 'admin'@'localhost' IDENTIFIED BY '123';
 GRANT ALL PRIVILEGES ON Tienda.* TO 'admin'@'localhost' WITH GRANT OPTION;
 
 
-
+SET FOREIGN_KEY_CHECKS = 0;
 --- Creación de tablas
 
 CREATE TABLE Categorias (
@@ -57,11 +57,18 @@ CREATE TABLE Ventas (
  cliente_id INT NOT NULL,
  direccion_id INT NOT NULL,
  tipo_pago_id INT NOT NULL,
+ total_venta INT NOT NULL,
+ empleado_id INT NOT NULL,
+ transaccion_id INT NOT NULL,
+ local_id INT NOT NULL,
  PRIMARY KEY (id),
  FOREIGN KEY (cliente_id) REFERENCES Clientes (id),
  FOREIGN KEY (direccion_id) REFERENCES Direcciones_Clientes (id),
- FOREIGN KEY (tipo_pago_id) REFERENCES Tipos_Pagos (id)
+ FOREIGN KEY (tipo_pago_id) REFERENCES Tipos_Pagos (id),
+ FOREIGN KEY (empleado_id) REFERENCES Empleados(id),
+ FOREIGN KEY (local_id) REFERENCES Locales (id)
 );
+
 CREATE TABLE Proveedores (
  id INT NOT NULL AUTO_INCREMENT,
  nombre VARCHAR(100) NOT NULL,
@@ -103,10 +110,13 @@ CREATE TABLE Productos_Proveedores (
 
 CREATE TABLE Detalles_Ventas(
  id INT NOT NULL AUTO_INCREMENT,
+ venta_id INT NOT NULL,
  cantidad_producto INT NOT NULL,
  producto_id INT NOT NULL,
+ precio_unitario DECIMAL(10,2) NOT NULL,
  PRIMARY KEY (id),
- FOREIGN KEY (producto_id) REFERENCES Productos (id)
+ FOREIGN KEY (producto_id) REFERENCES Productos (id),
+ FOREIGN KEY (venta_id) REFERENCES Ventas(id)
 );
 
 CREATE TABLE Pedidos (
@@ -136,6 +146,7 @@ CREATE TABLE Productos_Locales (
  local_id INT NOT NULL,
  producto_id INT NOT NULL,
  disponibilidad BOOLEAN NOT NULL DEFAULT TRUE,
+ fecha_ingreso DATE,
  PRIMARY KEY (id),
  FOREIGN KEY (local_id) REFERENCES Locales (id),
  FOREIGN KEY (producto_id) REFERENCES Productos (id)
@@ -158,7 +169,7 @@ CREATE TABLE Empleados (
 
 
 -- Tabla principal para registrar transacciones financieras
-CREATE TABLE TransaccionesFinancieras (
+CREATE TABLE Transacciones (
     id INT NOT NULL AUTO_INCREMENT,
     tipo_transaccion VARCHAR(50) NOT NULL, -- Puede ser 'Venta', 'Compra', 'Pago', 'Reembolso', etc.
     monto DECIMAL(10,2) NOT NULL,
@@ -188,13 +199,4 @@ CREATE TABLE Detalles_Compras (
 );
 
 
--- Tabla para registrar detalles de las transacciones
-CREATE TABLE DetallesTransacciones (
-    id INT NOT NULL AUTO_INCREMENT,
-    transaccion_financiera_id INT NOT NULL,
-    venta_id INT,
-    PRIMARY KEY (id),
-    FOREIGN KEY (transaccion_financiera_id) REFERENCES TransaccionesFinancieras (id),
-    FOREIGN KEY (venta_id) REFERENCES Ventas (id)
-);
-
+SET FOREIGN_KEY_CHECKS = 1;

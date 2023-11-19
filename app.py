@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
 from flask_mysqldb import MySQL
 from passlib.hash import sha256_crypt
 from functools import wraps
@@ -517,6 +517,98 @@ def agregar_producto_local():
     productos = obtener_productos()
     return render_template('agregar_producto_local.html', productos=productos)
 
+###########################################
+#           CLIENTES
+##########################################
+
+# Ruta para obtener todos los clientes
+@app.route('/clientes')
+@is_logged_in_with_role(['admin'])
+def obtener_clientes():
+    clientes = obtener_clientes()
+    return render_template('clientes.html', clientes=clientes)
+
+# Ruta para crear un nuevo cliente
+@app.route('/crear_cliente', methods=['GET', 'POST'])
+@is_logged_in_with_role(['admin'])
+def crear_cliente():
+    if request.method == 'POST':
+        nombre_cliente = request.form['nombre_cliente']
+        apellido_paterno = request.form['apellido_paterno']
+        apellido_materno = request.form['apellido_materno']
+        telefono = request.form['telefono']
+        direccion = request.form['direccion']
+
+        try:
+            crear_cliente(nombre_cliente, apellido_paterno, apellido_materno, telefono, direccion)
+            flash('Cliente creado exitosamente', 'success')
+            return redirect(url_for('obtener_clientes'))
+        except Exception as e:
+            flash(f'Ocurrió un error al crear el cliente: {e}', 'danger')
+
+    return render_template('crear_cliente.html')
+
+# Ruta para editar un cliente
+@app.route('/editar_cliente/<int:cliente_id>', methods=['GET', 'POST'])
+@is_logged_in_with_role(['admin'])
+def editar_cliente(cliente_id):
+    cliente = obtener_cliente_por_id(cliente_id)
+    if not cliente:
+        flash('Cliente no encontrado', 'danger')
+        return redirect(url_for('obtener_clientes'))
+
+    if request.method == 'POST':
+        nombre_cliente = request.form['nombre_cliente']
+        apellido_paterno = request.form['apellido_paterno']
+        apellido_materno = request.form['apellido_materno']
+        telefono = request.form['telefono']
+
+        try:
+            editar_cliente(cliente_id, nombre_cliente, apellido_paterno, apellido_materno, telefono)
+            flash('Cliente actualizado exitosamente', 'success')
+
+            return redirect(url_for('obtener_clientes'))
+        except Exception as e:
+            flash(f'Ocurrió un error al editar el cliente: {e}', 'danger')
+
+    return render_template('editar_cliente.html', cliente=cliente)
+
+
+##################################################
+#         VENTAS
+###############################################
+
+@app.route('/crear_venta', methods=['GET', 'POST'])
+def crear_venta():
+    usuario_id = session.get('user_id', None)
+    local_id = session.get('local_id', None)
+    clientes = obtener_clientes()
+    tipos = obtener_tipos_pagos()
+
+    print(tipos)
+    # Renderizar el formulario de venta
+    return render_template('crear_venta.html', clientes=clientes, local_id=local_id, tipos_pago=tipos)
+
+
+################################################
+#           DIRECCIONES
+################################################
+
+@app.route('/obtener_direcciones/<int:cliente_id>', methods=['GET'])
+def obtener_direcciones(cliente_id):
+    direcciones = obtener_direcciones_clientes(cliente_id)
+    print(direcciones)
+    return jsonify(direcciones)
+
+#############################################
+#          MICRO CONSULTA PRODUCTOS
+#############################################
+@app.route('/obtener_productos_en_local/<int:local_id>',methods=['GET'])
+def obtener_productos_en_local(local_id):
+    productos = obtener_productos_locales(local_id)
+    print(productos)
+    return jsonify(local_id)
+
 ####
 # Métodos Auxiliares
 
@@ -766,8 +858,81 @@ def obtener_producto_local_por_id(producto_local_id):
     cursor.close()
     return producto_local
 
+### Clientes
 
-# # # # 
+def obtener_clientes():
+    cursor = mysql.connection.cursor()
+    cursor.callproc('getAllClientes')
+    clientes = cursor.fetchall()
+    cursor.close()
+    return clientes
+
+def crear_cliente(nombre_cliente, apaterno, amaterno, tel, direccion):
+    cursor = mysql.connection.cursor()
+    cursor.callproc('insertCliente', (nombre_cliente, apaterno, amaterno, tel, direccion))
+    cursor.connection.commit()
+    cursor.close()
+
+def editar_cliente(cliente_id, nombre_cliente, apellidoPaterno, apellidoMaterno, telefono):
+    cursor = mysql.connection.cursor()
+    cursor.callproc('updateCliente', (cliente_id, nombre_cliente, apellidoPaterno, apellidoMaterno, telefono))
+    cursor.connection.commit()
+    cursor.close()
+
+def obtener_cliente_por_id(cliente_id):
+    cursor = mysql.connection.cursor()
+    cursor.callproc('getClienteById',(cliente_id,))
+    cliente = cursor.fetchone()
+    cursor.close()
+    return cliente
+
+
+
+### Direcciones_Clientes
+
+def obtener_direcciones_clientes(cliente_id):
+    cursor = mysql.connection.cursor()
+    cursor.callproc('getDireccionesByClienteId', (cliente_id,))
+    direcciones = cursor.fetchall()
+    cursor.close()
+    return direcciones
+
+
+### Ventas
+
+def obtener_ventas(localId):
+    cursor = mysql.connection.cursor()
+    cursor.callproc('getVentasByLocalId',(localId,))
+    ventas = cursor.fetchall()
+    cursor.close()
+    return ventas
+
+def crear_venta(cliente_id, direccion_id, tipo_pago_id, total_venta, empleado_id, usuario_id, local_id):
+    cursor = mysql.connection.cursor()
+    cursor.callproc('registrar_venta', (cliente_id, direccion_id, tipo_pago_id, total_venta, empleado_id, usuario_id, local_id))
+    venta_id = cursor.fetchone()
+    cursor.close()
+    return venta_id
+    
+### Detalle Venta
+
+def crear_detalle_venta(venta_id, producto_id, cantidad_producto):
+    cursor = mysql.connection.cursor()
+    cursor.callproc('registrar_detalle_venta',(venta_id, producto_id, cantidad_producto))
+    cursor.connection.commit()
+    cursor.close()
+
+
+### Obtener de Tipos
+
+def obtener_tipos_pagos():
+    cursor = mysql.connection.cursor()
+    cursor.callproc('getTiposPagos')
+    tipos = cursor.fetchall()
+    cursor.close()
+    return tipos
+
+# # # 
 
 if __name__ == '__main__':
     app.run(debug=True)

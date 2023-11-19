@@ -20,6 +20,8 @@ INSERT INTO Usuarios (email, password, rol) VALUES
 ('adminB@example.com', '123', 'admin'),
 ('adminC@example.com', '123', 'admin');
 
+INSERT INTO Tipos_Pagos(nombre) VALUES 
+('Efectivo'), ('Tarjeta');
 
 SET FOREIGN_KEY_CHECKS = 1;
 

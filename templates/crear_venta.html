@@ -1,0 +1,145 @@
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+<form method="POST" action="{{ url_for('crear_venta') }}">
+    <!-- Otros campos del formulario -->
+
+    <!-- Campo para seleccionar el cliente -->
+    <label for="cliente_id">Cliente:</label>
+    <select id="cliente_id" name="cliente_id">
+        <!-- Opciones de clientes -->
+        {% for cliente in clientes %}
+            <option value="{{ cliente[0] }}">{{ cliente[1] }}</option>
+        {% endfor %}
+    </select>
+
+    <!-- Campo para seleccionar la dirección -->
+    <label for="direccion_id">Dirección:</label>
+    <select id="direccion_id" name="direccion_id">
+        <!-- Las opciones de dirección se cargarán dinámicamente con JavaScript -->
+    </select>
+
+    <!-- Campo para seleccionar el tipo de pago -->
+    <label for="tipo_pago_id">Tipo de Pago:</label>
+    <select id="tipo_pago_id" name="tipo_pago_id">
+        <!-- Opciones de tipos de pago -->
+        {% for tipo_pago in tipos_pago %}
+            <option value="{{ tipo_pago[0] }}">{{ tipo_pago[1] }}</option>
+        {% endfor %}
+    </select>
+
+    <label for="local_id">Local:</label>
+    <select id="local_id" name="local_id" readonly>
+        <!-- Opciones de locales -->
+            <option value="{{ local_id }}">{{ local_id }}</option>
+    </select>
+
+    <!-- Lista dinámica de productos y cantidades -->
+    <div id="productos-lista">
+        <div class="producto-item">
+            <label>Producto:</label>
+            <select name="productos[]">
+                <!-- Opciones de productos se cargarán dinámicamente con JavaScript -->
+            </select>
+            <label>Cantidad:</label>
+            <input type="text" name="cantidades[]" placeholder="Cantidad">
+            <button type="button" class="eliminar-producto">Eliminar</button>
+        </div>
+    </div>
+
+    <button type="button" id="agregar-producto">Agregar Producto</button>
+
+    <!-- Otros campos del formulario -->
+
+    <button type="submit">Crear Venta</button>
+</form>
+
+<script>
+    // Función para cargar las direcciones al cambiar el cliente seleccionado
+    function cargarDirecciones() {
+        // Obtener el valor seleccionado del cliente
+        var clienteId = $("#cliente_id").val();
+
+        // Realizar la solicitud AJAX
+        $.ajax({
+            type: "GET",
+            url: "/obtener_direcciones/" + clienteId,
+            success: function(data) {
+                // Limpiar y actualizar las opciones de dirección
+                $("#direccion_id").empty();
+                $.each(data, function(index, value) {
+                    $("#direccion_id").append('<option value="' + value[0] + '">' + value[1] + '</option>');
+                });
+            },
+            error: function(error) {
+                console.log("Error al cargar direcciones:", error);
+            },
+            dataType: "json" // Especificar que esperamos un JSON
+        });
+    }
+
+    // Asociar la función al evento de cambio del cliente
+    $("#cliente_id").change(cargarDirecciones);
+    // Función para cargar los productos disponibles al cambiar el local seleccionado
+    function cargarProductos() {
+        // Obtener el valor seleccionado del local
+        var localId = $("#local_id").val();
+
+        // Realizar la solicitud AJAX
+        $.ajax({
+            type: "GET",
+            url: "/obtener_productos_en_local/" + localId,
+            success: function(data) {
+                // Limpiar y actualizar las opciones de productos
+                $(".producto-item select[name='productos[]']").empty();
+                $.each(data, function(index, value) {
+                    $(".producto-item select[name='productos[]']").append('<option value="' + value[0] + '">' + value[1] + '</option>');
+                });
+            },
+            error: function(error) {
+                console.log("Error al cargar productos:", error);
+            },
+            dataType: "json" // Especificar que esperamos un JSON
+        });
+    }
+
+    // Función para agregar dinámicamente un nuevo conjunto de productos y cantidades
+    function agregarProductoItem() {
+        var html = '<div class="producto-item">';
+        html += '<label>Producto:</label>';
+        html += '<select name="productos[]">';
+        // Opciones de productos se cargarán dinámicamente con JavaScript
+        html += '</select>';
+        html += '<label>Cantidad:</label>';
+        html += '<input type="text" name="cantidades[]" placeholder="Cantidad">';
+        html += '<button type="button" class="eliminar-producto">Eliminar</button>';
+        html += '</div>';
+
+        $("#productos-lista").append(html);
+    }
+
+    // Función para eliminar un conjunto de productos y cantidades
+    function eliminarProductoItem() {
+        $(this).parent().remove();
+    }
+   // Cargar productos al iniciar
+   cargarProductos();
+  // Asociar la función al evento de cambio del cliente
+	$("#cliente_id").change(cargarDirecciones);
+
+// Cargar productos al iniciar
+cargarProductos();
+
+// Asociar la función al evento de clic del botón (si tienes un botón específico)
+$("#cargarProductosBtn").click(function() {
+    cargarProductos();
+});
+    // Asociar la función al evento de cambio del local
+    $("#local_id").change(cargarProductos);
+
+    // Asociar la función al botón de agregar producto
+    $("#agregar-producto").click(agregarProductoItem);
+
+    // Delegar el evento de clic para el botón de eliminar producto (ya que son dinámicos)
+    $("#productos-lista").on("click", ".eliminar-producto", eliminarProductoItem);
+</script>
+

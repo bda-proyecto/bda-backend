@@ -238,27 +238,35 @@ END$$
 
 DELIMITER ;
 
-DELIMITER $$
+-- Cliente
 
---- Clientes
-
+DELIMITER //
 CREATE PROCEDURE insertCliente(
-	IN nombre VARCHAR(100),
-	IN apellidoPaterno VARCHAR(100),
-	IN apellidoMaterno VARCHAR(100),
-	IN telefono INT (12)
-)
+	IN nombre_cliente VARCHAR(100), 
+	IN apellido_paterno VARCHAR(100), 
+	IN apellido_materno VARCHAR(100), 
+	IN telefono INT, 
+	IN dir VARCHAR(100))
 BEGIN
-	INSERT INTO Clientes (nombre, apellido_paterno, apellido_materno, telefono)
-	VALUES (nombre, apellidoPaterno, apellidoMaterno, telefono);
-END$$
+    DECLARE cliente_id INT;
 
+    -- Insertar cliente
+    INSERT INTO Clientes (nombre, apellido_paterno, apellido_materno, telefono)
+    VALUES (nombre_cliente, apellido_paterno, apellido_materno, telefono);
+
+    -- Obtener el ID del cliente recién insertado
+    SET cliente_id = LAST_INSERT_ID();
+
+    -- Insertar direcciones
+    INSERT INTO Direcciones_Clientes (direccion, cliente_id)
+    VALUES (dir, cliente_id);
+END //
 DELIMITER ;
 
 DELIMITER $$
 
 CREATE PROCEDURE updateCliente(
-    IN id INT,
+    IN cliId INT,
     IN nombre VARCHAR(100),
     IN apellidoPaterno VARCHAR(100),
     IN apellidoMaterno VARCHAR(100),
@@ -270,7 +278,7 @@ BEGIN
         apellido_paterno = apellidoPaterno,
         apellido_materno = apellidoMaterno,
         telefono = telefono
-    WHERE id = id;
+    WHERE id = cliId;
 END$$
 
 DELIMITER ;
@@ -307,6 +315,47 @@ BEGIN
     SELECT *
     FROM Clientes;
 END$$
+
+DELIMITER ;
+
+--- Direcciones_Clientes
+
+DELIMITER $$
+
+CREATE PROCEDURE getAllDireccionesById(
+	IN cliente_id INT
+)
+BEGIN
+	SELECT *
+	FROM Clientes
+	WHERE id = cliente_id;
+END $$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE PROCEDURE insertDireccionCliente(
+	IN cliente_id INT,
+	IN nueva_direccion VARCHAR(100)
+)
+BEGIN
+	INSERT INTO Direcciones_Clientes (direccion, cliente_id)
+	VALUES (nueva_direccion, cliente_id);
+END $$
+
+DELIMITER ;
+
+DELIMITER $$
+CREATE PROCEDURE updateDireccionCliente(
+	IN dirId INT,
+	IN nueva_direccion VARCHAR(100)
+)
+BEGIN
+	UPDATE Direcciones_Clientes
+	SET direccion = nueva_direccion
+	WHERE id = dirId;
+END $$
 
 DELIMITER ;
 
@@ -416,6 +465,19 @@ DELIMITER ;
 
 DELIMITER //
 
+CREATE PROCEDURE getProductosDisponiblesByLocalId(
+	IN p_local_id INT
+)
+BEGIN
+	SELECT * FROM Productos_Locales WHERE local_id = p_local_id AND cantidad > 0 
+	AND disponibilidad = 1;
+END //
+
+DELIMITER ;
+
+DELIMITER //
+
+
 CREATE PROCEDURE deactivateProductoLocal(
     IN p_producto_local_id INT
 )
@@ -449,23 +511,82 @@ DELIMITER ;
 
 
 --- Ventas
-
-CREATE PROCEDURE insertVenta(
-    IN productoId INT,
-    IN clienteId INT,
-    IN cantidad INT,
-    IN fechaVenta DATE,
-    IN totalVenta DECIMAL(10,2)
+DELIMITER $$
+CREATE PROCEDURE getVentasByLocalId(
+	IN localId INT
 )
 BEGIN
-    INSERT INTO Ventas (producto_id, cliente_id, cantidad, fecha_venta, total_venta)
-    VALUES (productoId, clienteId, cantidad, fechaVenta, totalVenta);
+	SELECT * FROM Ventas 
+	WHERE local_id = localId;
+END$$
+
+DELIMITER ;
+
+
+DELIMITER $$
+
+CREATE PROCEDURE registrar_venta(
+    IN p_cliente_id INT,
+    IN p_direccion_id INT,
+    IN p_tipo_pago_id INT,
+    IN p_total_venta DECIMAL(10, 2),
+    IN p_empleado_id INT,
+    IN p_local_id INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    -- Iniciar transacción
+    START TRANSACTION;
+
+    -- Registrar la transacción financiera asociada a la venta
+    INSERT INTO Transacciones (tipo_transaccion, monto, fecha_transaccion, usuario_id)
+    VALUES ('Venta', p_total_venta, NOW(), p_empleado_id);
+
+    -- Obtener el ID de la transacción registrada
+    SET @transaccion_id = LAST_INSERT_ID();
+
+    -- Registrar la venta principal
+    INSERT INTO Ventas (cliente_id, direccion_id, tipo_pago_id, total_venta, empleado_id, transaccion_id, local_id)
+    VALUES (p_cliente_id, p_direccion_id, p_tipo_pago_id, p_total_venta, p_empleado_id, @transaccion_id, p_local_id);
+
+    -- Obtener el ID de la venta registrada
+    SET @venta_id = LAST_INSERT_ID();
+
+    -- Commit de la transacción
+    COMMIT;
+
+    -- Devolver el ID de la venta registrado
+    SELECT @venta_id AS venta_id;
 END$$
 
 DELIMITER ;
 
 DELIMITER $$
 
+CREATE PROCEDURE registrar_detalle_venta(
+    IN p_venta_id INT,
+    IN p_producto_id INT,
+    IN p_cantidad_producto INT
+)
+BEGIN
+    -- Registrar el detalle de la venta
+    INSERT INTO Detalles_Ventas (venta_id, producto_id, cantidad_producto)
+    VALUES (p_venta_id, p_producto_id, p_cantidad_producto);
+
+    -- Restar la cantidad vendida de Productos_Locales
+    UPDATE Productos_Locales
+    SET cantidad = cantidad - p_cantidad_producto
+    WHERE producto_id = p_producto_id;
+END$$
+
+
+DELIMITER ;
+
+DELIMITER $$
 CREATE PROCEDURE updateVenta(
     IN id INT,
     IN productoId INT,
@@ -783,6 +904,31 @@ END$$
 
 DELIMITER ;
 
+DELIMITER $$
+
+--- Tipos de pago
+
+CREATE PROCEDURE getTiposPagos()
+BEGIN
+	SELECT * FROM Tipos_Pagos;
+END$$
+
+
+DELIMITER ;
+
+-- Direcciones
+
+DELIMITER $
+
+CREATE PROCEDURE getDireccionesByClienteId(
+	IN clienteId INT
+)
+BEGIN 
+	SELECT * FROM Direcciones_Clientes
+	WHERE cliente_id = clienteId;
+END$$
+
+DELIMITER ;
 
 
 DELIMITER $$
