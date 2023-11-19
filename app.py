@@ -577,6 +577,12 @@ def editar_cliente(cliente_id):
 ##################################################
 #         VENTAS
 ###############################################
+@app.route('/ventas', methods=['GET','POST'])
+def ventas():
+    local_id = session.get('local_id', None)
+    ventas = obtener_ventas_local(local_id)
+    return render_template('ventas_local.html', ventas=ventas)
+
 
 @app.route('/crear_venta', methods=['GET', 'POST'])
 def crear_venta():
@@ -958,7 +964,14 @@ def crear_venta(cliente_id, direccion_id, tipo_pago_id, total_venta, usuario_id,
     venta_id = cursor.fetchone()
     cursor.close()
     return venta_id
-    
+
+def obtener_ventas_local(local_id):
+    cursor = mysql.connection.cursor()
+    cursor.callproc('getAllVentasByLocalId',(local_id,))
+    ventas = cursor.fetchall()
+    cursor.close()
+    return ventas
+
 ### Detalle Venta
 
 def crear_detalle_venta(venta_id, producto_id, cantidad_producto):

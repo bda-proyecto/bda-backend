@@ -661,6 +661,17 @@ DELIMITER ;
 
 DELIMITER $$
 
+CREATE PROCEDURE getAllVentasByLocalId(
+	IN localId INT
+)
+BEGIN
+	SELECT * FROM Ventas WHERE local_id = localId;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
 -- Compras
 CREATE PROCEDURE insertCompra(
     IN proveedorId INT,

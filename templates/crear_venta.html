@@ -1,59 +1,112 @@
-<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Venta</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+</head>
+<body>
 
-<form method="POST" action="{{ url_for('crear_venta') }}">
-    <!-- Otros campos del formulario -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand" href="#">Mi Tienda</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+            <li class="nav-item">
+                <a class="nav-link" href="/dashboard">Inicio</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/clientes">Clientes</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/productos">Productos</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Ventas</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/empleados">Empleados</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Pedidos</a>
+            </li>
+            <li class="nav-item active">
+                <a class="nav-link" href="/proveedores">Proveedores <span class="sr-only">(actual)</span></a>
+            </li>
+        </ul>
+    </div>
+</nav>
 
-    <!-- Campo para seleccionar el cliente -->
-    <label for="cliente_id">Cliente:</label>
-    <select id="cliente_id" name="cliente_id">
-        <!-- Opciones de clientes -->
-        {% for cliente in clientes %}
-            <option value="{{ cliente[0] }}">{{ cliente[1] }}</option>
-        {% endfor %}
-    </select>
+<div class="container mt-4">
+  <h2>Crear Venta</h2>
+  <form method="POST" action="{{ url_for('crear_venta') }}">
+    <div class="form-group">
+        <label for="cliente_id">Cliente:</label>
+        <select class="form-control" id="cliente_id" name="cliente_id">
+            {% for cliente in clientes %}
+                <option value="{{ cliente[0] }}">{{ cliente[1] }}</option>
+            {% endfor %}
+        </select>
+    </div>
 
-    <!-- Campo para seleccionar la dirección -->
-    <label for="direccion_id">Dirección:</label>
-    <select id="direccion_id" name="direccion_id">
-        <!-- Las opciones de dirección se cargarán dinámicamente con JavaScript -->
-    </select>
+    <div class="form-group">
+        <label for="direccion_id">Dirección:</label>
+        <select class="form-control" id="direccion_id" name="direccion_id">
+            <!-- Las opciones de dirección se cargarán dinámicamente con JavaScript -->
+        </select>
+    </div>
 
-    <!-- Campo para seleccionar el tipo de pago -->
-    <label for="tipo_pago_id">Tipo de Pago:</label>
-    <select id="tipo_pago_id" name="tipo_pago_id">
-        <!-- Opciones de tipos de pago -->
-        {% for tipo_pago in tipos_pago %}
-            <option value="{{ tipo_pago[0] }}">{{ tipo_pago[1] }}</option>
-        {% endfor %}
-    </select>
+    <div class="form-group">
+        <label for="tipo_pago_id">Tipo de Pago:</label>
+        <select class="form-control" id="tipo_pago_id" name="tipo_pago_id">
+            {% for tipo_pago in tipos_pago %}
+                <option value="{{ tipo_pago[0] }}">{{ tipo_pago[1] }}</option>
+            {% endfor %}
+        </select>
+    </div>
 
-    <label for="local_id">Local:</label>
-    <select id="local_id" name="local_id" readonly>
-        <!-- Opciones de locales -->
+    <div class="form-group">
+        <label for="local_id">Local:</label>
+        <select class="form-control" id="local_id" name="local_id" readonly>
             <option value="{{ local_id }}">{{ local_id }}</option>
-    </select>
+        </select>
+    </div>
 
-    <!-- Lista dinámica de productos y cantidades -->
     <div id="productos-lista">
-        <div class="producto-item">
-            <label>Producto:</label>
-            <select name="productos[]">
-                {% for producto in productos %}
-                    <option value="{{ producto[0] }}">{{ producto[1] }}</option>
-                {% endfor %}
-            </select>
-            <label>Cantidad:</label>
-            <input type="text" name="cantidades[]" placeholder="Cantidad">
-            <button type="button" class="eliminar-producto">Eliminar</button>
+        <div class="form-row align-items-center producto-item">
+            <div class="col-auto">
+                <label for="productos[]">Producto:</label>
+                <select class="form-control" name="productos[]">
+                    {% for producto in productos %}
+                        <option value="{{ producto[0] }}">{{ producto[1] }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-auto">
+                <label for="cantidades[]">Cantidad:</label>
+                <input type="text" class="form-control" name="cantidades[]" placeholder="Cantidad">
+            </div>
+            <div class="col-auto">
+                <button type="button" class="btn btn-danger eliminar-producto">Eliminar</button>
+            </div>
         </div>
     </div>
 
-    <button type="button" id="agregar-producto">Agregar Producto</button>
+    <button type="button" id="agregar-producto" class="btn btn-success">Agregar Producto</button>
 
     <!-- Otros campos del formulario -->
 
-    <button type="submit">Crear Venta</button>
-</form>
+    <button type="submit" class="btn btn-primary">Crear Venta</button>
+  </form>
+</div>
+
+<!-- Agrega los scripts y enlaces necesarios aquí -->
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 
 <script>
     // Variable de contexto para almacenar las opciones de productos
@@ -61,15 +114,12 @@
 
     // Función para cargar las direcciones al cambiar el cliente seleccionado
     function cargarDirecciones() {
-        // Obtener el valor seleccionado del cliente
         var clienteId = $("#cliente_id").val();
 
-        // Realizar la solicitud AJAX
         $.ajax({
             type: "GET",
             url: "/obtener_direcciones/" + clienteId,
             success: function(data) {
-                // Limpiar y actualizar las opciones de dirección
                 $("#direccion_id").empty();
                 $.each(data, function(index, value) {
                     $("#direccion_id").append('<option value="' + value[0] + '">' + value[1] + '</option>');
@@ -78,42 +128,42 @@
             error: function(error) {
                 console.log("Error al cargar direcciones:", error);
             },
-            dataType: "json" // Especificar que esperamos un JSON
+            dataType: "json"
         });
     }
 
-    // Asociar la función al evento de cambio del cliente
     $("#cliente_id").change(cargarDirecciones);
 
-    // Función para agregar dinámicamente un nuevo conjunto de productos y cantidades
     function agregarProductoItem() {
-        var html = '<div class="producto-item">';
-        html += '<label>Producto:</label>';
-        html += '<select name="productos[]">';
-        
-        // Generar opciones de productos dinámicamente
+        var html = '<div class="form-row align-items-center producto-item">';
+        html += '<div class="col-auto">';
+        html += '<label for="productos[]">Producto:</label>';
+        html += '<select class="form-control" name="productos[]">';
         $.each(productosDisponibles, function(index, value) {
             html += '<option value="' + value[0] + '">' + value[1] + '</option>';
         });
-
         html += '</select>';
-        html += '<label>Cantidad:</label>';
-        html += '<input type="text" name="cantidades[]" placeholder="Cantidad">';
-        html += '<button type="button" class="eliminar-producto">Eliminar</button>';
+        html += '</div>';
+        html += '<div class="col-auto">';
+        html += '<label for="cantidades[]">Cantidad:</label>';
+        html += '<input type="text" class="form-control" name="cantidades[]" placeholder="Cantidad">';
+        html += '</div>';
+        html += '<div class="col-auto">';
+        html += '<button type="button" class="btn btn-danger eliminar-producto">Eliminar</button>';
+        html += '</div>';
         html += '</div>';
 
         $("#productos-lista").append(html);
     }
 
-    // Función para eliminar un conjunto de productos y cantidades
     function eliminarProductoItem() {
-        $(this).parent().remove();
+        $(this).closest('.producto-item').remove();
     }
 
-    // Asociar la función al botón de agregar producto
     $("#agregar-producto").click(agregarProductoItem);
-
-    // Delegar el evento de clic para el botón de eliminar producto (ya que son dinámicos)
     $("#productos-lista").on("click", ".eliminar-producto", eliminarProductoItem);
 </script>
+
+</body>
+</html>
 
