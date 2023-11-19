@@ -477,6 +477,17 @@ DELIMITER ;
 
 DELIMITER //
 
+CREATE PROCEDURE obtener_productos_en_local(IN p_local_id INT)
+BEGIN
+    SELECT p.id, p.nombre_producto
+    FROM Productos_Locales pl
+    JOIN Productos p ON pl.producto_id = p.id
+    WHERE pl.local_id = p_local_id;
+END//
+
+DELIMITER ;
+
+DELIMITER //
 
 CREATE PROCEDURE deactivateProductoLocal(
     IN p_producto_local_id INT

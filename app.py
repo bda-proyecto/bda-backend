@@ -584,10 +584,9 @@ def crear_venta():
     local_id = session.get('local_id', None)
     clientes = obtener_clientes()
     tipos = obtener_tipos_pagos()
-
-    print(tipos)
+    productos = obtener_productos_local(local_id)
     # Renderizar el formulario de venta
-    return render_template('crear_venta.html', clientes=clientes, local_id=local_id, tipos_pago=tipos)
+    return render_template('crear_venta.html', clientes=clientes, productos=productos, local_id=local_id, tipos_pago=tipos)
 
 
 ################################################
@@ -605,7 +604,7 @@ def obtener_direcciones(cliente_id):
 #############################################
 @app.route('/obtener_productos_en_local/<int:local_id>',methods=['GET'])
 def obtener_productos_en_local(local_id):
-    productos = obtener_productos_locales(local_id)
+    productos = obtener_productos_local(local_id)
     print(productos)
     return jsonify(local_id)
 
@@ -857,6 +856,13 @@ def obtener_producto_local_por_id(producto_local_id):
     producto_local = cursor.fetchone()
     cursor.close()
     return producto_local
+
+def obtener_productos_local(local_id):
+    cursor = mysql.connection.cursor()
+    cursor.callproc('obtener_productos_en_local',(local_id,))
+    productos = cursor.fetchall()
+    cursor.close()
+    return productos
 
 ### Clientes
 
