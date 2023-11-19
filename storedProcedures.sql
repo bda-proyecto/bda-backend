@@ -451,6 +451,18 @@ END //
 
 DELIMITER ;
 
+DELIMITER $$
+
+CREATE PROCEDURE getPrecioProducto(
+	IN productoId INT
+)
+BEGIN
+	SELECT precio_venta FROM Productos WHERE id = productoId;
+END$$
+
+DELIMITER ;
+
+
 DELIMITER //
 
 CREATE PROCEDURE getProductosLocalesByLocalId(
@@ -545,11 +557,6 @@ CREATE PROCEDURE registrar_venta(
     IN p_local_id INT
 )
 BEGIN
-    DECLARE EXIT HANDLER FOR SQLEXCEPTION
-    BEGIN
-        ROLLBACK;
-    END;
-
     -- Iniciar transacción
     START TRANSACTION;
 
@@ -561,8 +568,8 @@ BEGIN
     SET @transaccion_id = LAST_INSERT_ID();
 
     -- Registrar la venta principal
-    INSERT INTO Ventas (cliente_id, direccion_id, tipo_pago_id, total_venta, empleado_id, transaccion_id, local_id)
-    VALUES (p_cliente_id, p_direccion_id, p_tipo_pago_id, p_total_venta, p_empleado_id, @transaccion_id, p_local_id);
+    INSERT INTO Ventas (cliente_id, fecha_venta, direccion_id, tipo_pago_id, total_venta, empleado_id, transaccion_id, local_id)
+    VALUES (p_cliente_id, NOW(), p_direccion_id, p_tipo_pago_id, p_total_venta, p_empleado_id, @transaccion_id, p_local_id);
 
     -- Obtener el ID de la venta registrada
     SET @venta_id = LAST_INSERT_ID();

@@ -585,6 +585,38 @@ def crear_venta():
     clientes = obtener_clientes()
     tipos = obtener_tipos_pagos()
     productos = obtener_productos_local(local_id)
+    if request.method == 'POST':
+        # Recopilar datos del formulario
+        cliente_id = request.form.get('cliente_id')
+        direccion_id = request.form.get('direccion_id')
+        tipo_pago_id = request.form.get('tipo_pago_id')
+        local_id = request.form.get('local_id')
+        productos = request.form.getlist('productos[]')
+        cantidades = request.form.getlist('cantidades[]')
+        
+        total_venta = 0
+        for i in range(len(productos)):
+            producto_id = productos[i]
+            cantidad_producto = int(cantidades[i])
+            precio_producto = obtener_precio_producto(producto_id)
+            total_venta += precio_producto[0] * cantidad_producto
+
+        empleado_id = session.get('user_id', None)
+        local_id = session.get('local_id', None)
+
+        resultado = crear_venta(cliente_id, direccion_id, tipo_pago_id, total_venta, empleado_id, local_id)
+
+        if resultado:
+            venta_id = resultado[0]
+
+            for i in range(len(productos)):
+                producto_id = productos[i]
+                cantidad_producto = int(cantidades[i])
+                crear_detalle_venta(venta_id, producto_id, cantidad_producto)
+
+            return redirect('dashboard')
+
+
     # Renderizar el formulario de venta
     return render_template('crear_venta.html', clientes=clientes, productos=productos, local_id=local_id, tipos_pago=tipos)
 
@@ -761,7 +793,6 @@ def editar_proveedor(proveedor_id, nombreProveedor, rfcProv, correoProv, telefon
 
 
 ### Productos
-
 def obtener_productos():
     cursor = mysql.connection.cursor()
     cursor.callproc('getAllProductos')
@@ -779,6 +810,14 @@ def activar_producto(productolocal_id):
     cursor.callproc('activateProducto',(productolocal_id,))
     mysql.connection.commit()
     cursor.close()
+
+def obtener_precio_producto(producto_id):
+    cursor = mysql.connection.cursor()
+    cursor.callproc('getPrecioProducto', (producto_id))
+    precio = cursor.fetchone()
+    cursor.close()
+    return precio
+
 
 # Función para crear un nuevo producto
 def crear_producto(nombre_producto, descripcion, precio_compra, precio_venta, categoria_id, proveedor_id, imagen_referencia):
@@ -913,9 +952,9 @@ def obtener_ventas(localId):
     cursor.close()
     return ventas
 
-def crear_venta(cliente_id, direccion_id, tipo_pago_id, total_venta, empleado_id, usuario_id, local_id):
+def crear_venta(cliente_id, direccion_id, tipo_pago_id, total_venta, usuario_id, local_id):
     cursor = mysql.connection.cursor()
-    cursor.callproc('registrar_venta', (cliente_id, direccion_id, tipo_pago_id, total_venta, empleado_id, usuario_id, local_id))
+    cursor.callproc('registrar_venta', (cliente_id, direccion_id, tipo_pago_id, total_venta, usuario_id, local_id))
     venta_id = cursor.fetchone()
     cursor.close()
     return venta_id

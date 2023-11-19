@@ -38,10 +38,10 @@
         <div class="producto-item">
             <label>Producto:</label>
             <select name="productos[]">
-            {% for producto in productos %}
-            <option value="{{ producto[0] }}">{{ producto[1] }}</option>
-        	{% endfor %}
-	    </select>
+                {% for producto in productos %}
+                    <option value="{{ producto[0] }}">{{ producto[1] }}</option>
+                {% endfor %}
+            </select>
             <label>Cantidad:</label>
             <input type="text" name="cantidades[]" placeholder="Cantidad">
             <button type="button" class="eliminar-producto">Eliminar</button>
@@ -56,6 +56,9 @@
 </form>
 
 <script>
+    // Variable de contexto para almacenar las opciones de productos
+    var productosDisponibles = JSON.parse('{{ productos | tojson | safe }}');
+
     // Función para cargar las direcciones al cambiar el cliente seleccionado
     function cargarDirecciones() {
         // Obtener el valor seleccionado del cliente
@@ -81,14 +84,18 @@
 
     // Asociar la función al evento de cambio del cliente
     $("#cliente_id").change(cargarDirecciones);
-    // Función para cargar los productos disponibles al cambiar el local seleccionado
 
     // Función para agregar dinámicamente un nuevo conjunto de productos y cantidades
     function agregarProductoItem() {
         var html = '<div class="producto-item">';
         html += '<label>Producto:</label>';
         html += '<select name="productos[]">';
-        // Opciones de productos se cargarán dinámicamente con JavaScript
+        
+        // Generar opciones de productos dinámicamente
+        $.each(productosDisponibles, function(index, value) {
+            html += '<option value="' + value[0] + '">' + value[1] + '</option>';
+        });
+
         html += '</select>';
         html += '<label>Cantidad:</label>';
         html += '<input type="text" name="cantidades[]" placeholder="Cantidad">';
@@ -102,6 +109,7 @@
     function eliminarProductoItem() {
         $(this).parent().remove();
     }
+
     // Asociar la función al botón de agregar producto
     $("#agregar-producto").click(agregarProductoItem);
 
