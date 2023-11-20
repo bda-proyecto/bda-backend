@@ -182,10 +182,16 @@ CREATE TABLE Transacciones (
 
 CREATE TABLE Compras (
     id INT NOT NULL AUTO_INCREMENT,
-    fecha_compra DATE NOT NULL,
     proveedor_id INT NOT NULL,
+    fecha_compra DATE NOT NULL,
+    empleado_id INT NOT NULL,
+    transaccion_id INT NOT NULL,
+    local_id INT NOT NULL,
     PRIMARY KEY (id),
-    FOREIGN KEY (proveedor_id) REFERENCES Proveedores (id)
+    FOREIGN KEY (proveedor_id) REFERENCES Proveedores (id),
+    FOREIGN KEY (empleado_id) REFERENCES Empleados (id),
+    FOREIGN KEY (transaccion_id) REFERENCES Transacciones (id),
+    FOREIGN KEY (local_id) REFERENCES Locales (id)
 );
 
 CREATE TABLE Detalles_Compras (

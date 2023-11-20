@@ -171,6 +171,20 @@ DELIMITER ;
 
 DELIMITER $$
 
+
+CREATE PROCEDURE getProductosByProveedorId(
+	IN proveedorId INT
+)
+BEGIN
+	SELECT *
+	FROM Productos
+	WHERE proveedor_id = proveedorId;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
 --- Usuarios
 
 CREATE PROCEDURE insertUsuario (
@@ -673,17 +687,45 @@ DELIMITER ;
 DELIMITER $$
 
 -- Compras
-CREATE PROCEDURE insertCompra(
+CREATE PROCEDURE registrar_compra(
     IN proveedorId INT,
-    IN fechaCompra DATE,
-    IN totalCompra DECIMAL(10,2)
+    IN totalCompra DECIMAL(10,2),
+    IN empleadoId INT,
+    IN localId INT
 )
 BEGIN
-    INSERT INTO Compras (proveedor_id, fecha_compra, total_compra)
-    VALUES (proveedorId, fechaCompra, totalCompra);
-END$$
+    START TRANSACTION;
+    
+    INSERT INTO Transacciones (tipo_transaccion, monto, fecha_transaccion, usuario_id)
+    VALUES ('Compra', totalCompra, NOW(), empleadoId);
+
+    -- Obtener el ID
+    SET @transaccion_id = LAST_INSERT_ID();
+
+    INSERT INTO Compras (proveedor_id, fecha_compra, empleado_id, transaccion_id, local_id)
+    VALUES (proveedorId, NOW(), empleadoId, transaccion_id, localId);
+
+    -- Obtener el ID de la compra
+    SET @compra_id = LAST_INSERT_ID();
+    
+    COMMIT;
+    
+    SELECT @compra_id AS compra_id;
+END$$	
 DELIMITER ;
 
+DELIMITER $$
+CREATE PROCEDURE registrar_detalle_compra(
+    IN compraId INT,
+    IN productoId INT,
+    IN cantidad INT
+)
+BEGIN
+    INSERT INTO Detalles_Compras (compra_id, producto_id, cantidad)
+    VALUES (compraId, productoId, cantidad);
+END$$
+
+DELIMITER ;
 DELIMITER $$
 
 CREATE PROCEDURE updateCompra(

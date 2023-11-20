@@ -626,6 +626,40 @@ def crear_venta():
     # Renderizar el formulario de venta
     return render_template('crear_venta.html', clientes=clientes, productos=productos, local_id=local_id, tipos_pago=tipos)
 
+################################################
+#           COMPRAS / PEDIDOS A PROVEEDORES
+###############################################
+@app.route('/crear_compra', methods=['GET', 'POST'])
+def crear_compra():
+    # Obtiene los datos necesarios para el formulario
+    proveedores = obtener_proveedores()
+    empleado_id = session.get('user_id', None)
+    local_id = session.get('local_id', None)
+
+    if request.method == 'POST':
+        # Recopila datos del formulario
+        proveedor_id = request.form.get('proveedor_id')
+
+        # Crea la compra y obtiene su ID
+        compra_resultado = registrar_compra(proveedor_id, empleado_id, local_id)
+
+        if compra_resultado:
+            compra_id = compra_resultado[0]
+
+            # Recorre los productos seleccionados en el formulario y registra los detalles de la compra
+            productos_seleccionados = request.form.getlist('productos[]')
+            cantidades = request.form.getlist('cantidades[]')
+
+            for i in range(len(productos_seleccionados)):
+                producto_id = productos_seleccionados[i]
+                cantidad = int(cantidades[i])
+                registrar_detalle_compra(compra_id, producto_id, cantidad)
+
+            return redirect('dashboard')  # O la ruta a la que deseas redirigir después de crear la compra
+
+    # Renderiza el formulario de compra
+    return render_template('crear_compra.html', proveedores=proveedores, local_id=local_id)
+
 
 ################################################
 #           DIRECCIONES
@@ -645,6 +679,15 @@ def obtener_productos_en_local(local_id):
     productos = obtener_productos_local(local_id)
     print(productos)
     return jsonify(local_id)
+
+#############################################
+#          MICRO CONSULTA 
+#############################################
+@app.route('/obtener_productos/<proveedor_id>')
+def obtener_productos_proveedor(proveedor_id):
+    productos = obtener_productos_por_proveedor(proveedor_id)
+    return jsonify(productos)
+
 
 ####
 # Métodos Auxiliares
@@ -855,6 +898,13 @@ def obtener_producto_id(producto_id):
     producto = cursor.fetchone()
     cursor.close()
     return producto
+
+def obtener_productos_por_proveedor(proveedor_id):
+    cursor = mysql.connection.cursor()
+    cursor.callproc('getProductosByProveedorId',(proveedor_id,))
+    productos = cursor.fetchall()
+    cursor.close()
+    return productos
 
 ## Productos en Locales
 

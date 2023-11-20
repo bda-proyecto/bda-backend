@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Compra</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <!-- ... (mismo navbar) ... -->
+</nav>
+
+<div class="container mt-4">
+  <h2>Crear Compra</h2>
+  <form method="POST" action="{{ url_for('crear_compra') }}">
+    <div class="form-group">
+        <label for="proveedor_id">Proveedor:</label>
+        <select class="form-control" id="proveedor_id" name="proveedor_id">
+            {% for proveedor in proveedores %}
+                <option value="{{ proveedor[0] }}">{{ proveedor[1] }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div id="productos-lista">
+        <div class="form-row align-items-center producto-item">
+            <div class="col-auto">
+                <label for="productos[]">Producto:</label>
+    		 <select class="form-control" id="productos" name="productos[]">
+       		   <!-- Productos se cargarán dinámicamente aquí -->
+    		 </select>
+            </div>
+            <div class="col-auto">
+                <label for="cantidades[]">Cantidad:</label>
+                <input type="text" class="form-control" name="cantidades[]" placeholder="Cantidad">
+            </div>
+            <div class="col-auto">
+                <button type="button" class="btn btn-danger eliminar-producto">Eliminar</button>
+            </div>
+        </div>
+    </div>
+
+    <button type="button" id="agregar-producto" class="btn btn-success">Agregar Producto</button>
+
+    <!-- Otros campos del formulario -->
+
+    <button type="submit" class="btn btn-primary">Crear Compra</button>
+  </form>
+</div>
+
+<!-- Agrega los scripts y enlaces necesarios aquí -->
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+<script>
+    // Variable de contexto para almacenar las opciones de productos
+<!-- Antes del script que usa productos -->
+{% if productos is defined %}
+    var productosDisponibles = JSON.parse('{{ productos | tojson | safe }}');
+{% else %}
+    var productosDisponibles = [];
+{% endif %}
+
+    function agregarProductoItem() {
+        var html = '<div class="form-row align-items-center producto-item">';
+        html += '<div class="col-auto">';
+        html += '<label for="productos[]">Producto:</label>';
+        html += '<select class="form-control" name="productos[]">';
+        $.each(productosDisponibles, function(index, value) {
+            html += '<option value="' + value[0] + '">' + value[1] + '</option>';
+        });
+        html += '</select>';
+        html += '</div>';
+        html += '<div class="col-auto">';
+        html += '<label for="cantidades[]">Cantidad:</label>';
+        html += '<input type="text" class="form-control" name="cantidades[]" placeholder="Cantidad">';
+        html += '</div>';
+        html += '<div class="col-auto">';
+        html += '<button type="button" class="btn btn-danger eliminar-producto">Eliminar</button>';
+        html += '</div>';
+        html += '</div>';
+
+        $("#productos-lista").append(html);
+    }
+ function cargarProductosDisponibles() {
+        var proveedorId = $("#proveedor_id").val();
+
+        $.ajax({
+            type: "GET",
+            url: "/obtener_productos/" + proveedorId,
+            success: function(data) {
+                // Limpiar y actualizar las opciones de productos
+                $("#productos-lista").empty();
+                $.each(data, function(index, value) {
+                    $("#productos-lista").append('<option value="' + value[0] + '">' + value[1] + '</option>');
+                });
+            },
+            error: function(error) {
+                console.log("Error al cargar productos:", error);
+            },
+            dataType: "json"
+        });
+    }
+
+    function eliminarProductoItem() {
+        $(this).closest('.producto-item').remove();
+    }
+    function cargarProductos() {
+        var proveedorId = $("#proveedor_id").val();
+
+        $.ajax({
+            type: "GET",
+            url: "/obtener_productos/" + proveedorId,  // Ajusta la ruta según tu implementación en Flask
+            success: function (data) {
+                // Limpiar y actualizar las opciones de productos
+                $("#productos").empty();
+                $.each(data, function (index, value) {
+                    $("#productos").append('<option value="' + value[0] + '">' + value[1] + '</option>');
+                });
+            },
+            error: function (error) {
+                console.log("Error al cargar productos:", error);
+            },
+            dataType: "json"
+        });
+    }
+
+    $(document).ready(function () {
+        // Evento de cambio en el proveedor
+        $("#proveedor_id").change(function () {
+            cargarProductos();
+        });
+
+        // Llama a cargarProductos al cargar la página para inicializar las opciones de productos
+        cargarProductos();
+
+        // Asociar la función agregarProductoItem al evento de clic en #agregar-producto
+        $("#agregar-producto").click(function () {
+            agregarProductoItem();
+            cargarProductos(); // También cargar productos al agregar uno nuevo
+        });
+
+        // Asociar la función eliminarProductoItem al evento de clic en .eliminar-producto
+        $("#productos-lista").on("click", ".eliminar-producto", function () {
+            eliminarProductoItem();
+            cargarProductos(); // También cargar productos al eliminar uno
+        });
+    });
+
+    $("#agregar-producto").click(agregarProductoItem);
+    $("#agregar-producto").click(cargarProductos);
+    $("#productos-lista").on("click", ".eliminar-producto", eliminarProductoItem);
+    
+</script>
+
+</body>
+</html>
+
