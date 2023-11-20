@@ -10,20 +10,20 @@
 <body>
 
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-  <a class="navbar-brand" href="#">Mi Tienda</a>
+    <a class="navbar-brand" href="#">Mi Tienda</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav">
             <li class="nav-item">
-                <a class="nav-link" href="/dashboard">Inicio</a>
+                <a class="nav-link" href="/dashboard">Inicio<span class="sr-only">(actual)</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="/clientes">Clientes</a>
             </li>
-            <li class="nav-item active">
-		    <a class="nav-link" href="/productos">Productos <span class="sr-only">(actual)</span> </a>
+            <li class="nav-item">
+                <a class="nav-link" href="/productos">Productos</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="/ventas">Ventas</a>
@@ -31,11 +31,10 @@
             <li class="nav-item">
                 <a class="nav-link" href="/empleados">Empleados</a>
             </li>
-            <li class="nav-item">
+            <li class="nav-item active">
                 <a class="nav-link" href="/compras">Compras</a>
-            </li>           
-	    <li class="nav-item">                   
-		    <a class="nav-link" href="/proveedores">Proveedores</a>
+            </li>
+            <li class="nav-item">                <a class="nav-link" href="/proveedores">Proveedores</span></a>
             </li>
         </ul>
     </div>
@@ -43,49 +42,38 @@
 <div class="container mt-4">
     <!-- Contenido principal del dashboard -->
     <h2>Bienvenido al Dashboard del Administrador</h2>
-    <a class="btn btn-primary" href="/categorias">Ver Categorias</a>
-    <!-- Botones de acción para la vista de productos -->
     <div class="mb-3">
     </div>
-    <h2>Productos Generales</h2>
-    <!-- Lista de productos -->
+    <h2>Compras de Local</h2>
     <table class="table table-striped">
         <thead>
             <tr>
                 <th>ID</th>
-                <th>Nombre</th>
-                <th>Descripción</th>
-                <th>Precio Compra</th>
-                <th>Precio Venta</th>
-                <th>Categoría</th>
-                <th>Proveedor</th>
-                <th>Imagen</th>
-                <th>Acciones</th>
+                <th>Código Proveedor</th>
+		<th>Fecha Compra</th>
+                <th>Código Empleo</th>
+                <th>Código Transacción</th>
+                <th>Local</th>
+		<th>Acciones</th>
             </tr>
         </thead>
         <tbody>
-            {% for producto in productos %}
+            {% for compra in compras %}
                 <tr>
-                    <td>{{ producto[0] }}</td>
-                    <td>{{ producto[1] }}</td>
-                    <td>{{ producto[2] }}</td>
-                    <td>{{ producto[3] }}</td>
-                    <td>{{ producto[4] }}</td>
-                    <td>{{ producto[5] }}</td>
-                    <td>{{ producto[6] }}</td>
-		    <td>
-		    <img src="{{ url_for('static', filename='images/productos/' + producto[7]) }}" alt="Descripción de la imagen"  class="mt-2" style="max-width: 200px;">
-		    </td>
+                    <td>{{ compra[0] }}</td>
+                    <td>{{ compra[1] }}</td>
+                    <td>{{ compra[2] }}</td>
+                    <td>{{ compra[3] }}</td>
+                    <td>{{ compra[4] }}</td>
+                    <td>{{ compra[5] }}</td>
+                    <td>{{ compra[6] }}</td>
                     <td>
-                        <!-- Agregar enlaces a las páginas de edición y desactivación/activación -->
-                        <a href="{{ url_for('editar_producto', producto_id=producto[0]) }}" class="btn btn-warning btn-sm">Editar</a>
                     </td>
                 </tr>
             {% endfor %}
         </tbody>
     </table>    
-    	<a class="btn btn-primary" href="/crear_producto">Crear Productos</a>
-	<a class="btn btn-primary" href="/productos_locales">Asignar Producto a Local</a>	
+    	<a class="btn btn-primary" href="/crear_compra">Crear Compra</a>
 </div>
 
 

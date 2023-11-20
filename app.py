@@ -629,6 +629,15 @@ def crear_venta():
 ################################################
 #           COMPRAS / PEDIDOS A PROVEEDORES
 ###############################################
+
+@app.route('/compras',methods=['GET'])
+def compras():
+    local_id = session.get('local_id', None)
+    compras = obtener_compras_local(local_id)
+    return render_template('compras_local.html', compras=compras)
+
+
+
 @app.route('/crear_compra', methods=['GET', 'POST'])
 def crear_compra():
     # Obtiene los datos necesarios para el formulario
@@ -637,32 +646,57 @@ def crear_compra():
     local_id = session.get('local_id', None)
 
     if request.method == 'POST':
+        
+        productos = request.form.getlist('productos[]')
+        cantidades = request.form.getlist('cantidades[]')
+        
         # Recopila datos del formulario
         proveedor_id = request.form.get('proveedor_id')
+        total_compra = 0
+        for i in range(len(productos)):
+            producto_id = productos[i]
+            cantidad_producto = int(cantidades[i])
+            precio_producto = obtener_precio_producto(producto_id)
+            total_compra += precio_producto[0] * cantidad_producto
 
         # Crea la compra y obtiene su ID
-        compra_resultado = registrar_compra(proveedor_id, empleado_id, local_id)
+        compra_resultado = crear_compra(proveedor_id, total_compra, empleado_id, local_id)
 
         if compra_resultado:
             compra_id = compra_resultado[0]
 
-            # Recorre los productos seleccionados en el formulario y registra los detalles de la compra
-            productos_seleccionados = request.form.getlist('productos[]')
-            cantidades = request.form.getlist('cantidades[]')
-
-            for i in range(len(productos_seleccionados)):
-                producto_id = productos_seleccionados[i]
+            for i in range(len(productos)):
+                producto_id = productos[i]
                 cantidad = int(cantidades[i])
-                registrar_detalle_compra(compra_id, producto_id, cantidad)
+                crear_detalle_compra(compra_id, producto_id, cantidad)
 
             return redirect('dashboard')  # O la ruta a la que deseas redirigir después de crear la compra
 
     # Renderiza el formulario de compra
     return render_template('crear_compra.html', proveedores=proveedores, local_id=local_id)
 
+################################################
+#               GRAFICOS
+###############################################
+@app.route('/graficos',methods=['GET'])
+def graficos():
+    resultados = obtener_total_ventas()
+    resultados_anio = obtener_total_ventas_anio()
+    data = []
+    for row in resultados:
+        mes_anio = f"{row[0]}/{row[1]}"
+        total_ventas = row[2]
+        data.append({'mes_anio': mes_anio, 'total_ventas': total_ventas})
+    data_anio = []
+    for row in resultados_anio:
+        anio = row[0]
+        total_ventas = row[1]
+        data_anio.append({'anio': anio, 'total_ventas': total_ventas})
+    return render_template('graficos.html', resultados=data, resultados_anio=data_anio)
+
 
 ################################################
-#           DIRECCIONES
+#         MICRO CONSULTA  DIRECCIONES
 ################################################
 
 @app.route('/obtener_direcciones/<int:cliente_id>', methods=['GET'])
@@ -683,10 +717,13 @@ def obtener_productos_en_local(local_id):
 #############################################
 #          MICRO CONSULTA 
 #############################################
-@app.route('/obtener_productos/<proveedor_id>')
+@app.route('/obtener_productos/<int:proveedor_id>')
 def obtener_productos_proveedor(proveedor_id):
     productos = obtener_productos_por_proveedor(proveedor_id)
     return jsonify(productos)
+
+
+
 
 
 ####
@@ -987,8 +1024,6 @@ def obtener_cliente_por_id(cliente_id):
     cursor.close()
     return cliente
 
-
-
 ### Direcciones_Clientes
 
 def obtener_direcciones_clientes(cliente_id):
@@ -1031,6 +1066,31 @@ def crear_detalle_venta(venta_id, producto_id, cantidad_producto):
     cursor.close()
 
 
+
+### Compra
+
+def obtener_compras_local(local_id):
+    cursor = mysql.connection.cursor()
+    cursor.callproc('getComprasByLocalId', (local_id,))
+    compras = cursor.fetchall()
+    return compras
+
+def crear_compra(proveedor_id, total_compra, empleado_id, local_id):
+    cursor = mysql.connection.cursor()
+    cursor.callproc('registrar_compra',(proveedor_id, total_compra, empleado_id, local_id))
+    compra_id = cursor.fetchone()
+    cursor.close()
+    return compra_id
+
+### Detalle Compra
+
+def crear_detalle_compra(compra_id, producto_id, cantidad):
+    cursor = mysql.connection.cursor()
+    cursor.callproc('registrar_detalle_compra',(compra_id, producto_id, cantidad))
+    cursor.connection.commit()
+    cursor.close()
+
+
 ### Obtener de Tipos
 
 def obtener_tipos_pagos():
@@ -1039,6 +1099,31 @@ def obtener_tipos_pagos():
     tipos = cursor.fetchall()
     cursor.close()
     return tipos
+
+### Reportes
+
+def obtener_total_ventas_cliente(cliente_id):
+    cursor = mysql.connection.cursor()
+    cursor.callproc('getTotalSalesByClient',(cliente_id,))
+    ventas = cursor.fetchall()
+    cursor.close()
+    return ventas
+
+def obtener_total_ventas():
+    cursor = mysql.connection.cursor()
+    cursor.callproc('GetTotalSalesByMonth')
+    ventas = cursor.fetchall()
+    cursor.close()
+    return ventas
+
+def obtener_total_ventas_anio():
+    cursor = mysql.connection.cursor()
+    cursor.callproc('GetTotalSalesByYear')
+    ventas = cursor.fetchall()
+    cursor.close()
+    return ventas
+
+
 
 # # # 
 

@@ -113,7 +113,6 @@ CREATE TABLE Detalles_Ventas(
  venta_id INT NOT NULL,
  cantidad_producto INT NOT NULL,
  producto_id INT NOT NULL,
- precio_unitario DECIMAL(10,2) NOT NULL,
  PRIMARY KEY (id),
  FOREIGN KEY (producto_id) REFERENCES Productos (id),
  FOREIGN KEY (venta_id) REFERENCES Ventas(id)

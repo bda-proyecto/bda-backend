@@ -9,7 +9,35 @@
 <body>
 
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <!-- ... (mismo navbar) ... -->
+    <a class="navbar-brand" href="#">Mi Tienda</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+            <li class="nav-item">
+                <a class="nav-link" href="/dashboard">Inicio</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/clientes">Clientes</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/productos">Productos</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/ventas">Ventas</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/empleados">Empleados</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/compras">Compras</a>
+            </li>
+            <li class="nav-item active">
+                <a class="nav-link" href="/proveedores">Proveedores <span class="sr-only">(actual)</span></a>
+            </li>
+        </ul>
+    </div>
 </nav>
 
 <div class="container mt-4">
@@ -18,7 +46,7 @@
     <div class="form-group">
         <label for="proveedor_id">Proveedor:</label>
         <select class="form-control" id="proveedor_id" name="proveedor_id">
-	    {% for proveedor in proveedores %}
+            {% for proveedor in proveedores %}
                 <option value="{{ proveedor[0] }}">{{ proveedor[1] }}</option>
             {% endfor %}
         </select>
@@ -42,21 +70,52 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 
 <script>
-   // Variable de contexto para almacenar las opciones de productos
-    {% if productos is defined %}
-        var productosDisponibles = JSON.parse('{{ productos | tojson | safe }}');
-    {% else %}
-        var productosDisponibles = [];
-    {% endif %}
+    $(document).ready(function () {
+        // Llama a cargarProductos al cargar la página para inicializar las opciones de productos
+        cargarProductos();
 
-    function agregarProductoItem() {
+        // Evento de cambio en el proveedor
+        $("#proveedor_id").change(function () {
+            cargarProductos();
+        });
+
+        // Asociar la función agregarProductoItem al evento de clic en #agregar-producto
+        $("#agregar-producto").click(function () {
+            agregarProductoItem();
+        });
+
+        // Asociar la función eliminarProductoItem al evento de clic en .eliminar-producto
+        $("#productos-lista").on("click", ".eliminar-producto", function () {
+            eliminarProductoItem(this);
+        });
+    });
+
+    function cargarProductos() {
+        var proveedorId = $("#proveedor_id").val();
+
+        $.ajax({
+            type: "GET",
+            url: "/obtener_productos/" + proveedorId,
+            success: function(data) {
+                actualizarListaProductos(data);
+            },
+            error: function(error) {
+                console.log("Error al cargar productos:", error);
+            },
+            dataType: "json"
+        });
+    }
+
+    function actualizarListaProductos(productos) {
         var html = '<div class="form-row align-items-center producto-item">';
         html += '<div class="col-auto">';
         html += '<label for="productos[]">Producto:</label>';
         html += '<select class="form-control" name="productos[]">';
-        $.each(productosDisponibles, function(index, value) {
+        
+        $.each(productos, function(index, value) {
             html += '<option value="' + value[0] + '">' + value[1] + '</option>';
         });
+        
         html += '</select>';
         html += '</div>';
         html += '<div class="col-auto">';
@@ -68,49 +127,23 @@
         html += '</div>';
         html += '</div>';
 
-        $("#productos-lista").append(html);
+        $("#productos-lista").empty().append(html);
     }
 
-    function eliminarProductoItem() {
-        $(this).closest('.producto-item').remove();
+    function agregarProductoItem() {
+        // Agregar un nuevo elemento de producto basado en el primer elemento
+        var primerProducto = $("#productos-lista .producto-item:first").clone();
+        primerProducto.find("select").val(""); // Limpiar el valor del nuevo producto
+        primerProducto.find("input").val(""); // Limpiar la cantidad del nuevo producto
+        $("#productos-lista").append(primerProducto);
     }
 
-    function cargarProductos() {
-        var proveedorId = $("#proveedor_id").val();
-
-        $.ajax({
-            type: "GET",
-            url: "/obtener_productos/" + proveedorId,
-            success: function(data) {
-                // Limpiar y actualizar las opciones de productos
-                $("#productos-lista").empty();
-                $.each(data, function(index, value) {
-                    agregarProductoItem(); // Agregar el producto a la lista
-                });
-            },
-            error: function(error) {
-                console.log("Error al cargar productos:", error);
-            },
-            dataType: "json"
-        });
+    function eliminarProductoItem(elemento) {
+        $(elemento).closest('.producto-item').remove();
     }
-    $(document).ready(function () {
-        // Evento de cambio en el proveedor
-        $("#proveedor_id").change(function () {
-            cargarProductos();
-        });
-
-        // Llama a cargarProductos al cargar la página para inicializar las opciones de productos
-        cargarProductos();
-
-        // Asociar la función agregarProductoItem al evento de clic en #agregar-producto
-        $("#agregar-producto").click(agregarProductoItem);
-
-        // Asociar la función eliminarProductoItem al evento de clic en .eliminar-producto
-        $("#productos-lista").on("click", ".eliminar-producto", eliminarProductoItem);
-    
-});
 </script>
+
+
 
 </body>
 </html>

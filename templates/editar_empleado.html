@@ -8,35 +8,39 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
 </head>
 <body>
-	<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <a class="navbar-brand" href="#">Mi Tienda</a>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <a class="navbar-brand" href="#">Mi Tienda</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav">
+            <li class="nav-item">
+                <a class="nav-link" href="/dashboard">Inicio</a>
+            </li>
+            <li class="nav-item">
+                    <a class="nav-link" href="/clientes">Clientes</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/productos">Productos</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/ventas">Ventas</a>
+            </li>
             <li class="nav-item active">
-                <a class="nav-link" href="#">Inicio <span class="sr-only">(actual)</span></a>
+		    <a class="nav-link" href="/empleados">Empleados<span class="sr-only">(actual)</span></a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">Productos</a>
-            </li>
+                <a class="nav-link" href="/compras">Compras</a>
+            </li> 
             <li class="nav-item">
-                <a class="nav-link" href="#">Ventas</a>
+                    <a class="nav-link" href="/proveedores">Proveedores</a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/empleados">Empleados</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">Pedidos</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">Proveedores</a>
-            </li>
-            <!-- Agrega más elementos del menú según sea necesario -->
         </ul>
     </div>
 </nav>
+
 <!-- Contenido principal del formulario de edición de empleados -->
 <div class="container mt-4">
 <h2>Editar Empleado</h2>

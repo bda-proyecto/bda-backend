@@ -17,8 +17,8 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav">
-            <li class="nav-item">
-                <a class="nav-link" href="/dashboard">Inicio</a>
+            <li class="nav-item active">
+                <a class="nav-link" href="/dashboard">Inicio<span class="sr-only">(actual)</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="/clientes">Clientes</a>
@@ -27,16 +27,16 @@
                 <a class="nav-link" href="/productos">Productos</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">Ventas</a>
+                <a class="nav-link" href="/ventas">Ventas</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="/empleados">Empleados</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">Pedidos</a>
+                <a class="nav-link" href="/pedidos">Compras</a>
             </li>
-            <li class="nav-item active">
-                <a class="nav-link" href="/proveedores">Proveedores <span class="sr-only">(actual)</span></a>
+            <li class="nav-item">
+                <a class="nav-link" href="/proveedores">Proveedores</span></a>
             </li>
         </ul>
     </div>
@@ -53,8 +53,10 @@
         </div>
     </div>
 </div>
-
-<!-- Agrega enlaces a los archivos de Bootstrap JS y otros scripts aquí -->
+<div class="container justify-content-md-center mt-3">
+   <a class="btn btn-lg btn-primary" href="/graficos">Gráficos</a>
+</div>
+   <!-- Agrega enlaces a los archivos de Bootstrap JS y otros scripts aquí -->
 
 </body>
 </html>

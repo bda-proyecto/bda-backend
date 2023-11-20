@@ -703,7 +703,7 @@ BEGIN
     SET @transaccion_id = LAST_INSERT_ID();
 
     INSERT INTO Compras (proveedor_id, fecha_compra, empleado_id, transaccion_id, local_id)
-    VALUES (proveedorId, NOW(), empleadoId, transaccion_id, localId);
+    VALUES (proveedorId, NOW(), empleadoId, @transaccion_id, localId);
 
     -- Obtener el ID de la compra
     SET @compra_id = LAST_INSERT_ID();
@@ -726,6 +726,22 @@ BEGIN
 END$$
 
 DELIMITER ;
+
+DELIMITER $$
+
+CREATE PROCEDURE getComprasByLocalId(
+	IN localId INT
+)
+BEGIN
+	SELECT * FROM Compras WHERE local_id = localId;
+END$$
+
+DELIMITER ;
+
+
+DELIMITER ;
+
+
 DELIMITER $$
 
 CREATE PROCEDURE updateCompra(
@@ -1001,117 +1017,45 @@ END$$
 
 DELIMITER ;
 
+-- Reporte financiero
 
-DELIMITER $$
---- Reportes Financieros
+DELIMITER //
 
--- Obtener el total de ventas por cliente
-CREATE PROCEDURE getVentasTotalesPorCliente()
+CREATE PROCEDURE getTotalSalesByClient(IN clientId INT)
 BEGIN
-    SELECT clientes.nombre AS nombre_cliente, SUM(ventas.total_venta) AS total_ventas
-    FROM clientes
-    JOIN ventas ON clientes.id = ventas.cliente_id
-    GROUP BY clientes.id;
-END$$
-DELIMITER ;
-
-DELIMITER $$
--- Obtener el total de ventas por categoría de productos
-CREATE PROCEDURE getVentasTotalesPorCategoria()
-BEGIN
-    SELECT categorias.nombre_categoria, SUM(ventas.total_venta) AS total_ventas
-    FROM categorias
-    JOIN productos ON categorias.id = productos.categoria_id
-    JOIN ventas ON productos.id = ventas.producto_id
-    GROUP BY categorias.id;
-END$$
-DELIMITER ;
-
-DELIMITER $$
--- Obtener el inventario actual de cada producto
-CREATE PROCEDURE getInventarioActual()
-BEGIN
-    SELECT productos.nombre_producto, inventarios.cantidad
-    FROM productos
-    JOIN inventarios ON productos.id = inventarios.producto_id;
-END$$
-DELIMITER ;
-
-DELIMITER $$
--- Obtener el total de compras por proveedor
-CREATE PROCEDURE getComprasTotalesPorProveedor(
-    IN proveedorId INT,
-    OUT totalCompras DECIMAL(10,2)
-)
-BEGIN
-    SELECT SUM(total_compra) INTO totalCompras
-    FROM Compras
-    WHERE proveedor_id = proveedorId;
-END$$
-DELIMITER ;
-
-DELIMITER $$
--- Obtener el total de ventas por producto
-CREATE PROCEDURE getVentasTotalesPorProducto()
-BEGIN
-    SELECT productos.nombre_producto, SUM(ventas.cantidad) AS total_ventas
-    FROM productos
-    JOIN ventas ON productos.id = ventas.producto_id
-    GROUP BY productos.id;
-END$$
-DELIMITER ;
-
-DELIMITER $$
--- Obtener el balance general (total de ventas - total de compras)
-CREATE PROCEDURE getBalanceGeneral(
-    OUT balance DECIMAL(10,2)
-)
-BEGIN
-    DECLARE totalVentas DECIMAL(10,2);
-    DECLARE totalCompras DECIMAL(10,2);
-
-    SELECT COALESCE(SUM(total_venta), 0) INTO totalVentas FROM ventas;
-    SELECT COALESCE(SUM(total_compra), 0) INTO totalCompras FROM compras;
-
-    SET balance = totalVentas - totalCompras;
-END$$
-DELIMITER ;
-
-DELIMITER $$
--- Obtener la lista de productos con bajo inventario (por ejemplo, menos de 10 unidades)
-CREATE PROCEDURE getProductosBajoInventario(
-    IN cantidadLimite INT,
-    OUT mensaje VARCHAR(255)
-)
-BEGIN
-    SELECT nombre_producto
-    FROM inventarios
-    JOIN productos ON inventarios.producto_id = productos.id
-    WHERE cantidad < cantidadLimite;
-
-    IF ROW_COUNT() > 0 THEN
-        SET mensaje = 'Productos con bajo inventario encontrados.';
-    ELSE
-        SET mensaje = 'Todos los productos tienen inventario suficiente.';
-    END IF;
-END$$
+    SELECT c.nombre, c.apellido_paterno, c.apellido_materno, SUM(v.total_venta) AS total_ventas
+    FROM Clientes c
+    JOIN Ventas v ON c.id = v.cliente_id
+    WHERE c.id = clientId;
+END //
 
 DELIMITER ;
 
-DELIMITER $$
--- Aplicar un descuento a una venta
-CREATE PROCEDURE aplicarDescuentoVenta(
-    IN ventaId INT,
-    IN porcentajeDescuento DECIMAL(5,2),
-    OUT totalVentaConDescuento DECIMAL(10,2)
-)
+DELIMITER //
+
+CREATE PROCEDURE GetTotalSalesByMonth()
 BEGIN
-    DECLARE totalVenta DECIMAL(10,2);
+    SELECT
+        MONTH(fecha_venta) AS mes,
+        YEAR(fecha_venta) AS anio,
+        SUM(total_venta) AS total_ventas
+    FROM Ventas
+    GROUP BY mes, anio;
+END //
 
-    SELECT total_venta INTO totalVenta FROM ventas WHERE id = ventaId;
-
-    SET totalVentaConDescuento = totalVenta - (totalVenta * (porcentajeDescuento / 100));
-
-    UPDATE ventas SET total_venta = totalVentaConDescuento WHERE id = ventaId;
-END$$
 DELIMITER ;
+
+
+DELIMITER //
+
+CREATE PROCEDURE GetTotalSalesByYear()
+BEGIN
+    SELECT
+        YEAR(fecha_venta) AS anio,
+        SUM(total_venta) AS total_ventas
+    FROM Ventas
+    GROUP BY anio;
+END //
+
+DELIMITER ;
+
