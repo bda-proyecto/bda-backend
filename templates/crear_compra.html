@@ -18,28 +18,14 @@
     <div class="form-group">
         <label for="proveedor_id">Proveedor:</label>
         <select class="form-control" id="proveedor_id" name="proveedor_id">
-            {% for proveedor in proveedores %}
+	    {% for proveedor in proveedores %}
                 <option value="{{ proveedor[0] }}">{{ proveedor[1] }}</option>
             {% endfor %}
         </select>
     </div>
 
     <div id="productos-lista">
-        <div class="form-row align-items-center producto-item">
-            <div class="col-auto">
-                <label for="productos[]">Producto:</label>
-    		 <select class="form-control" id="productos" name="productos[]">
-       		   <!-- Productos se cargarán dinámicamente aquí -->
-    		 </select>
-            </div>
-            <div class="col-auto">
-                <label for="cantidades[]">Cantidad:</label>
-                <input type="text" class="form-control" name="cantidades[]" placeholder="Cantidad">
-            </div>
-            <div class="col-auto">
-                <button type="button" class="btn btn-danger eliminar-producto">Eliminar</button>
-            </div>
-        </div>
+        <!-- El contenido de esta sección se cargará dinámicamente -->
     </div>
 
     <button type="button" id="agregar-producto" class="btn btn-success">Agregar Producto</button>
@@ -56,13 +42,12 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 
 <script>
-    // Variable de contexto para almacenar las opciones de productos
-<!-- Antes del script que usa productos -->
-{% if productos is defined %}
-    var productosDisponibles = JSON.parse('{{ productos | tojson | safe }}');
-{% else %}
-    var productosDisponibles = [];
-{% endif %}
+   // Variable de contexto para almacenar las opciones de productos
+    {% if productos is defined %}
+        var productosDisponibles = JSON.parse('{{ productos | tojson | safe }}');
+    {% else %}
+        var productosDisponibles = [];
+    {% endif %}
 
     function agregarProductoItem() {
         var html = '<div class="form-row align-items-center producto-item">';
@@ -85,7 +70,12 @@
 
         $("#productos-lista").append(html);
     }
- function cargarProductosDisponibles() {
+
+    function eliminarProductoItem() {
+        $(this).closest('.producto-item').remove();
+    }
+
+    function cargarProductos() {
         var proveedorId = $("#proveedor_id").val();
 
         $.ajax({
@@ -95,7 +85,7 @@
                 // Limpiar y actualizar las opciones de productos
                 $("#productos-lista").empty();
                 $.each(data, function(index, value) {
-                    $("#productos-lista").append('<option value="' + value[0] + '">' + value[1] + '</option>');
+                    agregarProductoItem(); // Agregar el producto a la lista
                 });
             },
             error: function(error) {
@@ -104,30 +94,6 @@
             dataType: "json"
         });
     }
-
-    function eliminarProductoItem() {
-        $(this).closest('.producto-item').remove();
-    }
-    function cargarProductos() {
-        var proveedorId = $("#proveedor_id").val();
-
-        $.ajax({
-            type: "GET",
-            url: "/obtener_productos/" + proveedorId,  // Ajusta la ruta según tu implementación en Flask
-            success: function (data) {
-                // Limpiar y actualizar las opciones de productos
-                $("#productos").empty();
-                $.each(data, function (index, value) {
-                    $("#productos").append('<option value="' + value[0] + '">' + value[1] + '</option>');
-                });
-            },
-            error: function (error) {
-                console.log("Error al cargar productos:", error);
-            },
-            dataType: "json"
-        });
-    }
-
     $(document).ready(function () {
         // Evento de cambio en el proveedor
         $("#proveedor_id").change(function () {
@@ -138,22 +104,12 @@
         cargarProductos();
 
         // Asociar la función agregarProductoItem al evento de clic en #agregar-producto
-        $("#agregar-producto").click(function () {
-            agregarProductoItem();
-            cargarProductos(); // También cargar productos al agregar uno nuevo
-        });
+        $("#agregar-producto").click(agregarProductoItem);
 
         // Asociar la función eliminarProductoItem al evento de clic en .eliminar-producto
-        $("#productos-lista").on("click", ".eliminar-producto", function () {
-            eliminarProductoItem();
-            cargarProductos(); // También cargar productos al eliminar uno
-        });
-    });
-
-    $("#agregar-producto").click(agregarProductoItem);
-    $("#agregar-producto").click(cargarProductos);
-    $("#productos-lista").on("click", ".eliminar-producto", eliminarProductoItem);
+        $("#productos-lista").on("click", ".eliminar-producto", eliminarProductoItem);
     
+});
 </script>
 
 </body>
