@@ -100,14 +100,6 @@ CREATE TABLE Productos (
  FOREIGN KEY (proveedor_id) REFERENCES Proveedores (id)
 );
 
-CREATE TABLE Productos_Proveedores (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    producto_id INT,
-    proveedor_id INT,
-    FOREIGN KEY (producto_id) REFERENCES Productos (id),
-    FOREIGN KEY (proveedor_id) REFERENCES Proveedores (id)
-);
-
 CREATE TABLE Detalles_Ventas(
  id INT NOT NULL AUTO_INCREMENT,
  venta_id INT NOT NULL,
@@ -116,27 +108,6 @@ CREATE TABLE Detalles_Ventas(
  PRIMARY KEY (id),
  FOREIGN KEY (producto_id) REFERENCES Productos (id),
  FOREIGN KEY (venta_id) REFERENCES Ventas(id)
-);
-
-CREATE TABLE Pedidos (
- id INT NOT NULL AUTO_INCREMENT,
- fecha_pedido DATE NOT NULL,
- estado VARCHAR(100) NOT NULL,
- local_id INT NOT NULL,
- proveedor_id INT NOT NULL,
- PRIMARY KEY (id),
- FOREIGN KEY (local_id) REFERENCES Locales (id),
- FOREIGN KEY (proveedor_id) REFERENCES Proveedores (id)
-);
-
-CREATE TABLE Detalles_Pedidos (
- id INT NOT NULL AUTO_INCREMENT,
- pedido_id INT NOT NULL,
- producto_id INT NOT NULL,
- cantidad INT NOT NULL,
- PRIMARY KEY (id),
- FOREIGN KEY (pedido_id) REFERENCES Pedidos (id),
- FOREIGN KEY (producto_id) REFERENCES Productos (id)
 );
 
 CREATE TABLE Productos_Locales (

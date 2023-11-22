@@ -62,10 +62,10 @@ INSERT INTO Ventas (fecha_venta, cliente_id, direccion_id, tipo_pago_id, total_v
     ('2023-11-02', 2, 2, 2, 160.00, 3, 4, 2),
     ('2023-11-03', 3, 3, 3, 200.00, 4, 5, 3);
 
-INSERT INTO Detalles_Ventas (venta_id, cantidad_producto, producto_id, precio_unitario) VALUES
-    (1, 2, 1, 60.00),
-    (2, 2, 2, 80.00),
-    (3, 2, 3, 100.00);
+INSERT INTO Detalles_Ventas (venta_id, cantidad_producto, producto_id) VALUES
+    (1, 2, 1),
+    (2, 2, 2),
+    (3, 2, 3);
 
 INSERT INTO Transacciones (tipo_transaccion, monto, fecha_transaccion, referencia, usuario_id) VALUES
     ('Venta', 120.00, '2023-11-01', 'ReferenciaVenta1', 2),

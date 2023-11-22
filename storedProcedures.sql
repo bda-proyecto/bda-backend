@@ -113,7 +113,7 @@ DELIMITER ;
 DELIMITER $$
 
 CREATE PROCEDURE updateProducto(
-    IN id INT,
+    IN productoId INT,
     IN nombreProducto VARCHAR(50),
     IN descripcion TEXT,
     IN precioCompra DECIMAL(10,2),
@@ -131,7 +131,7 @@ BEGIN
         categoria_id = categoriaId,
         proveedor_id = proveedorId,  -- Agrega esta línea
         imagen = IFNULL(imagen_path, imagen)  -- Modifica esta línea
-    WHERE id = id;
+    WHERE id = productoId;
 END$$
 
 DELIMITER ;
