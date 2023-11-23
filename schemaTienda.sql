@@ -141,7 +141,7 @@ CREATE TABLE Empleados (
 -- Tabla principal para registrar transacciones financieras
 CREATE TABLE Transacciones (
     id INT NOT NULL AUTO_INCREMENT,
-    tipo_transaccion VARCHAR(50) NOT NULL, -- Puede ser 'Venta', 'Compra', 'Pago', 'Reembolso', etc.
+    tipo_transaccion VARCHAR(50) NOT NULL, -- Puede ser 'Venta', 'Compra', 'Pago', o 'Reembolso'
     monto DECIMAL(10,2) NOT NULL,
     fecha_transaccion DATE NOT NULL,
     referencia VARCHAR(100),
