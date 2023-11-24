@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reporte de Ventas por Mes</title>
+
+    <!-- Incluir la biblioteca Highcharts desde CDN -->
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+</head>
+       <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand" href="#">Mi Tienda</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+            <li class="nav-item active">
+                <a class="nav-link" href="/dashboard">Inicio<span class="sr-only">(actual)</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/clientes">Clientes</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/productos">Productos</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/ventas">Ventas</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/empleados">Empleados</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/pedidos">Compras</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/proveedores">Proveedores</span></a>
+            </li>
+        </ul>
+    </div>
+</nav>
+    <h1>Reporte de Ventas por Mes</h1>
+
+    <!-- Contenedor para el gráfico de Highcharts -->
+    <div id="chartContainer" style="height: 300px;"></div>
+
+    <h1>Report de Ventas por Año</h1>
+    <div id="chartContainerAnio" style="height:300px;"></div>
+        <script>
+        // Obtener datos desde Flask
+		var data = {{ resultados | tojson }};
+
+        // Construir listas separadas para meses y valores
+        var meses = [];
+        var valores = [];
+
+        data.forEach(function(item) {
+            meses.push(item.mes_anio);
+            valores.push(parseInt(item.total_ventas));
+        });
+	console.log(valores)
+        // Configurar el gráfico de Highcharts
+        Highcharts.chart('chartContainer', {
+            chart: {
+                type: 'column'
+            },
+            title: {
+                text: 'Total de Ventas por Mes'
+            },
+            xAxis: {
+                categories: meses
+            },
+            yAxis: {
+                title: {
+                    text: 'Total de Ventas'
+                },
+		labels: {
+		    format: '{value}'
+		}
+            },
+            series: [{
+                name: 'Ventas',
+                data: valores
+            }],
+				    responsive: {
+        rules: [{
+            condition: {
+                maxWidth: 10000
+            },
+            chartOptions: {
+                legend: {
+                    layout: 'horizontal',
+                    align: 'center',
+                    verticalAlign: 'bottom'
+                }
+            }
+        }]
+    }
+        });
+
+
+	    // Obtener datos desde Flask
+    var data_anio = {{ resultados_anio | tojson }};
+
+    // Construir listas separadas para años y valores
+    var anios = [];
+    var valores = [];
+
+    data_anio.forEach(function(item) {
+        anios.push(item.anio);
+        valores.push(parseInt(item.total_ventas));
+    });
+
+    // Configurar el gráfico de Highcharts
+    Highcharts.chart('chartContainerAnio', {
+        chart: {
+            type: 'column'
+        },
+        title: {
+            text: 'Total de Ventas por Año'
+        },
+        xAxis: {
+            categories: anios
+        },
+        yAxis: {
+            title: {
+                text: 'Total de Ventas'
+            },
+            labels: {
+                format: '{value}'
+            }
+        },
+        series: [{
+            name: 'Ventas',
+            data: valores
+        }],
+        responsive: {
+            rules: [{
+                condition: {
+                    maxWidth: 10000
+                },
+                chartOptions: {
+                    legend: {
+                        layout: 'horizontal',
+                        align: 'center',
+                        verticalAlign: 'bottom'
+                    }
+                }
+            }]
+        }
+    });
+    </script>
+</body>
+</html>
+

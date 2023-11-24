@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard del Administrador - Mi Tienda</title>
+    <!-- Agrega enlaces a los archivos de Bootstrap CSS y otros estilos aquí -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <style>
+            body {
+            background-color: #f8f9fa;
+        }
+
+        .navbar {
+            background-color: #343a40;
+        }
+
+        .navbar-brand {
+            color: #ffffff;
+            font-weight: bold;
+        }
+
+        .navbar-toggler-icon {
+            background-color: #ffffff;
+        }
+
+        .navbar-nav .nav-item .nav-link {
+            color: #ffffff;
+        }
+
+        .container-dashboard {
+            background-image: url('{{ url_for('static', filename='images/' + local[3]) }}');
+            background-size: cover;
+            background-position: center;
+            height: 400px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: #ffffff;
+        }
+
+        .card-dashboard {
+            background-color: rgba(255, 255, 255, 0.8);
+            margin-top: 1.5rem;
+            text-align: center;
+            color: #343a40; /* Cambié el color del texto para que sea visible en el fondo blanco */
+        }
+
+        .btn-graficos {
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <a class="navbar-brand" href="#">Mi Tienda</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+            <li class="nav-item active">
+                <a class="nav-link" href="/dashboard">Inicio<span class="sr-only">(actual)</span></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/clientes">Clientes</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/productos">Productos</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/ventas">Ventas</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/empleados">Empleados</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/compras">Compras</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/proveedores">Proveedores</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<div class="container-dashboard">
+    <!-- Contenido principal del dashboard -->
+    <!-- Aquí puedes incluir bloques de contenido para productos, ventas, empleados, etc. -->
+    <div class="card card-dashboard">
+        <h2>Bienvenido al Dashboard del Administrador</h2>
+        <h5 class="card-title">Tu Local Actual es</h5>
+        <p class="card-text">Nombre del Local: {{ local[1] }}</p>
+        <p class="card-text">Dirección: {{ local[2] }}</p>
+    </div>
+</div>
+
+<div class="container text-center btn-graficos">
+    <a class="btn btn-lg btn-primary" href="/graficos">Ir a Gráficos</a>
+</div>
+
+<!-- Agrega enlaces a los archivos de Bootstrap JS y otros scripts aquí -->
+
+</body>
+</html>
+

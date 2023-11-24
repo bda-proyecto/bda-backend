@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Producto</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <a class="navbar-brand" href="#">Mi Tienda</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+            <li class="nav-item">
+                <a class="nav-link" href="/dashboard">Inicio</a>
+            </li>
+	    <li class="nav-item">
+                    <a class="nav-link" href="/clientes">Clientes</a>
+            </li>
+            <li class="nav-item active">
+		    <a class="nav-link" href="/productos">Productos <span class="sr-only">(actual)</span> </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/ventas">Ventas</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/empleados">Empleados</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/compras">Compras</a>
+            </li> 
+            <li class="nav-item">
+                    <a class="nav-link" href="/proveedores">Proveedores</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <h1>Editar Producto</h1>
+    <form method="post" action="{{ url_for('editar_producto', producto_id=producto[0]) }}" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="nombre_producto">Nombre del Producto:</label>
+            <input type="text" class="form-control" name="nombre_producto" value="{{ producto[1] }}" required>
+        </div>
+        <div class="form-group">
+            <label for="descripcion">Descripción:</label>
+            <textarea class="form-control" name="descripcion" rows="3" required>{{ producto[2] }}</textarea>
+        </div>
+        <div class="form-group">
+            <label for="precio_compra">Precio de Compra:</label>
+            <input type="number" class="form-control" name="precio_compra" step="0.01" value="{{ producto[3] }}" required>
+        </div>
+        <div class="form-group">
+            <label for="precio_venta">Precio de Venta:</label>
+            <input type="number" class="form-control" name="precio_venta" step="0.01" value="{{ producto[4] }}" required>
+        </div>
+        <div class="form-group">
+            <label for="categoria_id">Categoría:</label>
+            <select class="form-control" name="categoria_id" required>
+                {% for categoria in categorias %}
+                    <option value="{{ categoria[0] }}" {% if categoria[0] == producto.categoria_id %} selected {% endif %}>{{ categoria[1] }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="proveedor_id">Proveedor:</label>
+            <select class="form-control" name="proveedor_id" required>
+                {% for proveedor in proveedores %}
+                    <option value="{{ proveedor[0] }}" {% if proveedor[0] == producto.proveedor_id %} selected {% endif %}>{{ proveedor[1] }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="imagen">Imagen:</label>
+            <input type="file" class="form-control-file" name="imagen">
+            {% if producto[7] %}
+        <img src="{{ url_for('static', filename='/images/productos/' + producto[7]) }}" alt="Imagen actual" class="mt-2" style="max-width: 200px;">
+	    {% else %}
+                <small class="form-text text-muted">No hay imagen disponible.</small>
+            {% endif %}
+        </div>
+        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+    </form>
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+</body>
+</html>
+
