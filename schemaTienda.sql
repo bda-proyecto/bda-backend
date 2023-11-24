@@ -1,23 +1,30 @@
 
+-- Se crea la base de datos Tienda si no existe
 CREATE DATABASE IF NOT EXISTS Tienda;
 
+-- Usamos la BD Tienda
 USE Tienda;
 
---- Usuario Administrador
+--- Creación del usuario Administrador en el servidor local con su password
 CREATE USER IF NOT EXISTS 'admin'@'localhost' IDENTIFIED BY '123';
 
+-- Le damos todos todos los privilegios a este usuario administrador
 GRANT ALL PRIVILEGES ON Tienda.* TO 'admin'@'localhost' WITH GRANT OPTION;
 
-
+-- Para desactivar las restricciones de las llaves primarias momentáneamente
 SET FOREIGN_KEY_CHECKS = 0;
+
+
 --- Creación de tablas
 
+-- Tabla principal que almacena las categorías de los productos
 CREATE TABLE Categorias (
  id INT NOT NULL AUTO_INCREMENT,
  nombre_categoria VARCHAR(50),
  PRIMARY KEY (id)
 );
 
+-- Tabla que almacena los usuarios que se le asigna a cada cliente para registrarse al sistema
 CREATE TABLE Usuarios (
  id INT NOT NULL AUTO_INCREMENT,
  email VARCHAR(100) NOT NULL,
@@ -27,6 +34,7 @@ CREATE TABLE Usuarios (
  PRIMARY KEY (id)
 );
 
+-- Tabla que almacena a los clientes del negocio
 CREATE TABLE Clientes (
  id INT NOT NULL AUTO_INCREMENT,
  nombre VARCHAR(100) NOT NULL,
@@ -37,6 +45,7 @@ CREATE TABLE Clientes (
  FOREIGN KEY (id) REFERENCES Usuarios (id)
 );
 
+-- Tabla que almacena las diferentes direcciones que pueden guardar los clientes en el sistema
 CREATE TABLE Direcciones_Clientes (
  id INT NOT NULL AUTO_INCREMENT,
  direccion VARCHAR(200) NOT NULL,
@@ -45,12 +54,14 @@ CREATE TABLE Direcciones_Clientes (
  FOREIGN KEY (cliente_id) REFERENCES Clientes (id)
 );
 
+-- Tabla que almacena lso distintos tipos de pagos que se pueden aplicar en las ventas
 CREATE TABLE Tipos_Pagos(
  id INT NOT NULL AUTO_INCREMENT,
  nombre VARCHAR(100),
  PRIMARY KEY (id)
 );
 
+-- Tabla que almacena las ventas del negocio (los pedidos de los clientes)
 CREATE TABLE Ventas (
  id INT NOT NULL AUTO_INCREMENT,
  fecha_venta DATE NOT NULL,
@@ -69,6 +80,7 @@ CREATE TABLE Ventas (
  FOREIGN KEY (local_id) REFERENCES Locales (id)
 );
 
+-- Tabla que almacena los distintos proveedores de calzado que tiene el negocio
 CREATE TABLE Proveedores (
  id INT NOT NULL AUTO_INCREMENT,
  nombre VARCHAR(100) NOT NULL,
@@ -78,6 +90,7 @@ CREATE TABLE Proveedores (
  PRIMARY KEY (id)
 );
 
+-- Tabla que almacena la información de los distintos locales que tiene el micronegocio
 CREATE TABLE Locales (
  id INT NOT NULL AUTO_INCREMENT,
  nombre VARCHAR(50),
@@ -86,6 +99,7 @@ CREATE TABLE Locales (
  PRIMARY KEY (id)
 );
 
+-- Tabla que almacena los distintos productos (tipos de calzado) que ofrece el micronegocio
 CREATE TABLE Productos (
  id INT NOT NULL AUTO_INCREMENT,
  nombre_producto VARCHAR(50),
@@ -100,6 +114,7 @@ CREATE TABLE Productos (
  FOREIGN KEY (proveedor_id) REFERENCES Proveedores (id)
 );
 
+-- Tabla que almacena los detalles de las ventas realizadas
 CREATE TABLE Detalles_Ventas(
  id INT NOT NULL AUTO_INCREMENT,
  venta_id INT NOT NULL,
@@ -110,6 +125,7 @@ CREATE TABLE Detalles_Ventas(
  FOREIGN KEY (venta_id) REFERENCES Ventas(id)
 );
 
+-- Tabla que almacena el inventario que tiene cada uno de los locales del negocio
 CREATE TABLE Productos_Locales (
  id INT NOT NULL AUTO_INCREMENT,
  cantidad INT NOT NULL,
@@ -122,6 +138,7 @@ CREATE TABLE Productos_Locales (
  FOREIGN KEY (producto_id) REFERENCES Productos (id)
 );
 
+ -- Tabla que almacena los empleados que tiene el negocio repartidos en lso distintos locale
 CREATE TABLE Empleados (
  id INT NOT NULL AUTO_INCREMENT,
  nombre VARCHAR(50) NOT NULL,
@@ -136,9 +153,7 @@ CREATE TABLE Empleados (
  FOREIGN KEY (usuario_id) REFERENCES Usuarios (id)
 );
 
-
-
--- Tabla principal para registrar transacciones financieras
+-- Tabla principal para registrar transacciones financieras que se generan de las ventas y compras del negocio
 CREATE TABLE Transacciones (
     id INT NOT NULL AUTO_INCREMENT,
     tipo_transaccion VARCHAR(50) NOT NULL, -- Puede ser  'Venta', 'Compra', 'Cancelación', 'En Proceso' o 'Reembolso'
@@ -150,6 +165,7 @@ CREATE TABLE Transacciones (
     FOREIGN KEY (usuario_id) REFERENCES Usuarios (id)
 );
 
+-- Tabla que almacena las distintas compras (pedidos a los proveedores) que realiza el negocio
 CREATE TABLE Compras (
     id INT NOT NULL AUTO_INCREMENT,
     proveedor_id INT NOT NULL,
@@ -164,6 +180,7 @@ CREATE TABLE Compras (
     FOREIGN KEY (local_id) REFERENCES Locales (id)
 );
 
+-- Tabla que almacena los detalles de las compras realizadas por el negocio
 CREATE TABLE Detalles_Compras (
     id INT NOT NULL AUTO_INCREMENT,
     compra_id INT NOT NULL,
