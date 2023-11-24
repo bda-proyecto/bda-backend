@@ -191,5 +191,5 @@ CREATE TABLE Detalles_Compras (
     FOREIGN KEY (producto_id) REFERENCES Productos (id)
 );
 
-
+-- Para activar de vuelta las restricciones de las llaves primarias 
 SET FOREIGN_KEY_CHECKS = 1;
