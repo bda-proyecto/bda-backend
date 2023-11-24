@@ -29,13 +29,13 @@ DELIMITER ;
 DELIMITER $$
 
 CREATE PROCEDURE updateCategoria(
-	IN id INT,
+	IN categoriaId INT,
 	IN nombreCategoria VARCHAR(50)
 )
 BEGIN
 	UPDATE Categorias
 	SET nombre_categoria = nombreCategoria
-	WHERE id = id;
+	WHERE id = categoriaId;
 END$$
 
 DELIMITER ;

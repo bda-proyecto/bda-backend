@@ -620,7 +620,7 @@ def crear_venta():
                 cantidad_producto = int(cantidades[i])
                 crear_detalle_venta(venta_id, producto_id, cantidad_producto)
 
-            return redirect('dashboard')
+            return redirect('ventas')
 
 
     # Renderizar el formulario de venta
@@ -670,7 +670,7 @@ def crear_compra():
                 cantidad = int(cantidades[i])
                 crear_detalle_compra(compra_id, producto_id, cantidad)
 
-            return redirect('dashboard')  # O la ruta a la que deseas redirigir después de crear la compra
+            return redirect('compras')  # O la ruta a la que deseas redirigir después de crear la compra
 
     # Renderiza el formulario de compra
     return render_template('crear_compra.html', proveedores=proveedores, local_id=local_id)
