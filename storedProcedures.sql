@@ -36,14 +36,14 @@ DELIMITER $$
 -- Se crea el procedimiento editar categoria
 CREATE PROCEDURE updateCategoria(
         -- parámetros de entrada
-        IN id INT,
+        IN categoriaId INT,
         IN nombreCategoria VARCHAR(50)
 )
 BEGIN
         -- Actualizar el nombre de la categoria si el insertado y registrado son el mismo en donde el id es el mismo
         UPDATE Categorias
         SET nombre_categoria = nombreCategoria
-        WHERE id = id;
+        WHERE id = categoriaId;
 END $$
 
 DELIMITER ;
